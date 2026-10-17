@@ -14,6 +14,9 @@ import {
 } from "../lib/txLifecycle";
 import { decodeContractRevert } from "../lib/revertMap";
 
+const USER_CITATIONS_STORAGE_KEY = "citation_watch_user_citations";
+const USER_CLAIMS_STORAGE_KEY = "citation_watch_user_claims";
+
 export function getGenLayerClient(account?: any) {
   return createClient({
     chain: GENLAYER_CHAIN,
@@ -25,10 +28,19 @@ export function getGenLayerClient(account?: any) {
 /**
  * Decodes leader receipt result from GenLayer JSON-RPC base64 response.
  */
-export function decodeLeaderReceiptResult(base64Str: string): string {
+export function decodeLeaderReceiptResult(resultInput: any): string {
   try {
-    if (!base64Str) return "";
-    const binaryStr = atob(base64Str);
+    if (!resultInput) return "";
+    if (typeof resultInput === "object") {
+      if (typeof resultInput.payload === "string" && resultInput.payload) {
+        return resultInput.payload;
+      }
+      if (typeof resultInput.raw === "string" && resultInput.raw) {
+        resultInput = resultInput.raw;
+      }
+    }
+    if (typeof resultInput !== "string") return "";
+    const binaryStr = atob(resultInput);
     if (binaryStr.length <= 1) return "";
     const sliced = binaryStr.slice(1);
     const bytes = new Uint8Array(sliced.length);
@@ -42,7 +54,57 @@ export function decodeLeaderReceiptResult(base64Str: string): string {
 }
 
 // -----------------------------------------------------------------------------
-// READ CALLS
+// LOCAL STORAGE CITATION & CLAIM TRACKING
+// -----------------------------------------------------------------------------
+
+export function getLocalUserCitationIds(): string[] {
+  try {
+    const raw = localStorage.getItem(USER_CITATIONS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalUserCitationId(id: string): void {
+  try {
+    const current = getLocalUserCitationIds();
+    if (!current.includes(id)) {
+      const updated = [id, ...current];
+      localStorage.setItem(USER_CITATIONS_STORAGE_KEY, JSON.stringify(updated));
+    }
+  } catch {
+    // localStorage might fail in restricted iframe / private browsing
+  }
+}
+
+export function getLocalUserClaimIds(): string[] {
+  try {
+    const raw = localStorage.getItem(USER_CLAIMS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalUserClaimId(id: string): void {
+  try {
+    const current = getLocalUserClaimIds();
+    if (!current.includes(id)) {
+      const updated = [id, ...current];
+      localStorage.setItem(USER_CLAIMS_STORAGE_KEY, JSON.stringify(updated));
+    }
+  } catch {
+    // ignore
+  }
+}
+
+// -----------------------------------------------------------------------------
+// READ CALLS (SourceDriftLedger)
 // -----------------------------------------------------------------------------
 
 export async function getCitation(citationId: string): Promise<CitationRecord | null> {
@@ -51,64 +113,56 @@ export async function getCitation(citationId: string): Promise<CitationRecord | 
     const raw: any = await client.readContract({
       address: SOURCE_DRIFT_LEDGER_ADDRESS,
       functionName: "get_citation",
-      args: [citationId],
+      args: [citationId.trim()],
     });
+
     if (!raw) return null;
-    return raw as unknown as CitationRecord;
+    if (typeof raw === "string") {
+      return JSON.parse(raw) as CitationRecord;
+    }
+    return raw as CitationRecord;
   } catch (err: any) {
-    if (String(err).includes("citation not found")) {
+    const msg = String(err).toLowerCase();
+    if (msg.includes("citation not found")) {
       return null;
     }
     throw err;
   }
 }
 
-export async function getLatestAudit(citationId: string): Promise<AuditRecord | null> {
+export async function listCitationIds(offset: number = 0, limit: number = 20): Promise<string[]> {
   const client = getGenLayerClient();
-  try {
-    const raw: any = await client.readContract({
-      address: SOURCE_DRIFT_LEDGER_ADDRESS,
-      functionName: "get_latest_audit",
-      args: [citationId],
-    });
-    if (!raw) return null;
-    return raw as unknown as AuditRecord;
-  } catch (err: any) {
-    if (String(err).includes("audit not found") || String(err).includes("citation not found")) {
-      return null;
-    }
-    throw err;
+  const raw: any = await client.readContract({
+    address: SOURCE_DRIFT_LEDGER_ADDRESS,
+    functionName: "list_citation_ids",
+    args: [offset, limit],
+  });
+
+  if (!raw) return [];
+  if (typeof raw === "string") {
+    return JSON.parse(raw) as string[];
   }
+  return Array.isArray(raw) ? raw : [];
 }
 
-export async function getAudit(auditId: string): Promise<AuditRecord | null> {
+export async function getLedgerMeta(): Promise<{ schema_version: string; citations_total: number; nonce: number } | null> {
   const client = getGenLayerClient();
   try {
     const raw: any = await client.readContract({
       address: SOURCE_DRIFT_LEDGER_ADDRESS,
-      functionName: "get_audit",
-      args: [auditId],
+      functionName: "get_meta",
+      args: [],
     });
     if (!raw) return null;
-    return raw as unknown as AuditRecord;
+    return typeof raw === "string" ? JSON.parse(raw) : raw;
   } catch {
     return null;
   }
 }
 
-export async function getCitationAuditCount(citationId: string): Promise<number> {
-  const client = getGenLayerClient();
-  try {
-    const count: any = await client.readContract({
-      address: SOURCE_DRIFT_LEDGER_ADDRESS,
-      functionName: "get_citation_audit_count",
-      args: [citationId],
-    });
-    return Number(count) || 0;
-  } catch {
-    return 0;
-  }
-}
+// -----------------------------------------------------------------------------
+// READ CALLS (ClaimsBoard)
+// -----------------------------------------------------------------------------
 
 export async function getClaim(claimId: string): Promise<ClaimBadgeRecord | null> {
   const client = getGenLayerClient();
@@ -116,13 +170,36 @@ export async function getClaim(claimId: string): Promise<ClaimBadgeRecord | null
     const raw: any = await client.readContract({
       address: CLAIMS_BOARD_ADDRESS,
       functionName: "get_claim",
-      args: [claimId],
+      args: [claimId.trim()],
     });
+
     if (!raw) return null;
-    return raw as unknown as ClaimBadgeRecord;
-  } catch {
-    return null;
+    if (typeof raw === "string") {
+      return JSON.parse(raw) as ClaimBadgeRecord;
+    }
+    return raw as ClaimBadgeRecord;
+  } catch (err: any) {
+    const msg = String(err).toLowerCase();
+    if (msg.includes("claim not found")) {
+      return null;
+    }
+    throw err;
   }
+}
+
+export async function listClaimIds(offset: number = 0, limit: number = 20): Promise<string[]> {
+  const client = getGenLayerClient();
+  const raw: any = await client.readContract({
+    address: CLAIMS_BOARD_ADDRESS,
+    functionName: "list_claim_ids",
+    args: [offset, limit],
+  });
+
+  if (!raw) return [];
+  if (typeof raw === "string") {
+    return JSON.parse(raw) as string[];
+  }
+  return Array.isArray(raw) ? raw : [];
 }
 
 export async function getClaimsLedgerAddress(): Promise<string> {
@@ -130,7 +207,7 @@ export async function getClaimsLedgerAddress(): Promise<string> {
   try {
     const addr = await client.readContract({
       address: CLAIMS_BOARD_ADDRESS,
-      functionName: "get_ledger",
+      functionName: "get_ledger_address",
       args: [],
     });
     return String(addr);
@@ -154,38 +231,75 @@ export async function getClaimsOwner(): Promise<string> {
 }
 
 // -----------------------------------------------------------------------------
-// WRITE CALLS & LIFECYCLE
+// TRANSACTION MONITORING & LIFECYCLE
 // -----------------------------------------------------------------------------
 
 export async function monitorTransaction(
   txHash: string,
   onProgress?: (progress: TxProgress) => void
-): Promise<{ status: string; receipt: any; decodedRevert?: string }> {
+): Promise<{ status: string; tx: any; decodedRevert?: string }> {
   const client = getGenLayerClient();
   const startTime = Date.now();
   const timeoutMs = 240000; // 4 minutes
 
   while (Date.now() - startTime < timeoutMs) {
     try {
-      const receipt: any = await client.getTransactionReceipt({ hash: txHash as `0x${string}` });
-      if (receipt) {
-        const rawStatus = receipt.status;
-        const leader = receipt.leader_receipt?.[0];
+      let tx: any = null;
+      try {
+        tx = await client.getTransaction({ hash: txHash as any });
+      } catch {
+        // fallback to raw RPC
+        const rpcRes = await fetch(RPC_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "eth_getTransactionByHash",
+            params: [txHash],
+          }),
+        });
+        const rpcJson = await rpcRes.json();
+        tx = rpcJson.result;
+      }
+
+      if (tx) {
+        const rawStatus = tx.statusName || tx.status_name || tx.status || "PENDING";
+        const consensusData = tx.consensus_data;
+        const leader = consensusData?.leader_receipt?.[0];
+
+        let leaderResult: string | undefined;
         let decodedRevert: string | undefined;
 
         if (leader?.execution_result === "ERROR" && leader?.result) {
+          leaderResult = "ERROR";
           const rawDecoded = decodeLeaderReceiptResult(leader.result);
           const parsed = decodeContractRevert(rawDecoded);
           decodedRevert = parsed.friendlyMessage;
+        } else if (leader?.execution_result === "SUCCESS") {
+          leaderResult = "SUCCESS";
         }
 
-        // Count agree votes
-        const votes = receipt.validator_receipts || [];
-        const agreeCount = votes.filter((v: any) => v.vote === 1 || v.vote === true || v.agree === true).length;
-        const totalVotes = votes.length;
+        let voteList: any[] = [];
+        if (Array.isArray(consensusData?.votes)) {
+          voteList = consensusData.votes;
+        } else if (typeof consensusData?.votes === "object" && consensusData?.votes !== null) {
+          voteList = Object.values(consensusData.votes);
+        } else if (Array.isArray(consensusData?.validators)) {
+          voteList = consensusData.validators;
+        }
+
+        const agreeCount = voteList.filter((v: any) => {
+          if (v === "agree" || v === 1 || v === true) return true;
+          if (typeof v === "object" && v !== null) {
+            return v.vote === "agree" || v.vote === 1 || v.vote === true || v.agree === true;
+          }
+          return false;
+        }).length;
+        const totalVotes = voteList.length;
 
         if (isAcceptedReceiptStatus(rawStatus)) {
-          if (leader?.execution_result === "ERROR") {
+          if (leaderResult === "ERROR") {
             onProgress?.({
               stage: "reverted",
               txHash,
@@ -194,7 +308,7 @@ export async function monitorTransaction(
               agreeCount,
               totalVotes,
             });
-            return { status: "REVERTED", receipt, decodedRevert };
+            return { status: "REVERTED", tx, decodedRevert };
           }
 
           onProgress?.({
@@ -204,29 +318,29 @@ export async function monitorTransaction(
             agreeCount,
             totalVotes,
           });
-          return { status: "ACCEPTED", receipt };
+          return { status: "ACCEPTED", tx };
         }
 
         if (isDisagreedReceiptStatus(rawStatus)) {
           onProgress?.({
             stage: "disagreed",
             txHash,
-            leaderResult: leader?.execution_result,
+            leaderResult,
             agreeCount,
             totalVotes,
           });
-          return { status: "DISAGREED", receipt };
+          return { status: "DISAGREED", tx };
         }
 
         if (isTimeoutReceiptStatus(rawStatus)) {
           onProgress?.({
             stage: "timed_out",
             txHash,
-            leaderResult: leader?.execution_result,
+            leaderResult,
             agreeCount,
             totalVotes,
           });
-          return { status: "TIMED_OUT", receipt };
+          return { status: "TIMED_OUT", tx };
         }
 
         onProgress?.({
@@ -236,35 +350,61 @@ export async function monitorTransaction(
           totalVotes,
         });
       }
-    } catch {
-      // Continue polling
+    } catch (pollErr) {
+      console.warn("monitorTransaction poll error:", pollErr);
     }
 
     await new Promise((r) => setTimeout(r, 3000));
   }
 
   onProgress?.({ stage: "timed_out", txHash });
-  return { status: "TIMED_OUT", receipt: null };
+  return { status: "TIMED_OUT", tx: null };
 }
 
-export async function registerCitation(
+// -----------------------------------------------------------------------------
+// WRITE CALLS WITH READBACK VERIFICATION
+// -----------------------------------------------------------------------------
+
+async function executeWriteWithRetry(
+  client: any,
+  params: { address: string; functionName: string; args: any[]; value: bigint }
+): Promise<string> {
+  let lastErr: any = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      const hash = await client.writeContract(params as any);
+      if (hash) return String(hash);
+    } catch (err: any) {
+      lastErr = err;
+      const delay = Math.min(2000 * Math.pow(1.5, attempt), 9000);
+      console.warn(`writeContract attempt ${attempt + 1} failed, retrying in ${delay}ms:`, err?.message || err);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
+export async function registerCitationFlow(
   account: any,
-  baseUrl: string,
-  articleTitle: string,
-  baselineOldid: number,
-  claimElements: string[],
+  label: string,
+  baselineUrl: string,
+  quotes: string[],
   onProgress?: (progress: TxProgress) => void
-): Promise<{ txHash: string; citationId?: string }> {
+): Promise<{ txHash: string; citationId: string; record: CitationRecord }> {
   onProgress?.({ stage: "signing" });
   const client = getGenLayerClient(account);
 
+  const cleanLabel = label.trim();
+  const cleanUrl = baselineUrl.trim();
+  const quotesJson = JSON.stringify(quotes.map((q) => q.trim()));
+
   onProgress?.({ stage: "submitting" });
-  const txHash: string = await client.writeContract({
+  const txHash: string = await executeWriteWithRetry(client, {
     address: SOURCE_DRIFT_LEDGER_ADDRESS,
     functionName: "register_citation",
-    args: [baseUrl, articleTitle, baselineOldid, claimElements],
+    args: [cleanLabel, cleanUrl, quotesJson],
     value: 0n,
-  } as any);
+  });
 
   onProgress?.({ stage: "consensus", txHash });
   const result = await monitorTransaction(txHash, onProgress);
@@ -273,26 +413,66 @@ export async function registerCitation(
     throw new Error(result.decodedRevert || `Registration failed with status ${result.status}`);
   }
 
-  onProgress?.({ stage: "state_confirmed", txHash });
-  return { txHash };
+  // READBACK VERIFICATION: Poll list_citation_ids to locate newly registered citation ID
+  for (let attempt = 0; attempt < 8; attempt++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    try {
+      const recentIds = await listCitationIds(0, 5);
+      for (const cid of recentIds) {
+        const record = await getCitation(cid);
+        if (
+          record &&
+          record.label === cleanLabel &&
+          record.baseline_url === cleanUrl
+        ) {
+          saveLocalUserCitationId(cid);
+          onProgress?.({ stage: "state_confirmed", txHash });
+          return { txHash, citationId: cid, record };
+        }
+      }
+    } catch {
+      // retry readback
+    }
+  }
+
+  // Fallback readback if list took time to index
+  const fallbackIds = await listCitationIds(0, 1);
+  if (fallbackIds.length > 0) {
+    const cid = fallbackIds[0];
+    const record = await getCitation(cid);
+    if (record) {
+      saveLocalUserCitationId(cid);
+      onProgress?.({ stage: "state_confirmed", txHash });
+      return { txHash, citationId: cid, record };
+    }
+  }
+
+  throw new Error("Transaction accepted by validators, but readback verification timed out.");
 }
 
-export async function auditCitationRevision(
+export async function auditCitationFlow(
   account: any,
   citationId: string,
-  targetOldid: number,
+  targetUrl: string,
   onProgress?: (progress: TxProgress) => void
-): Promise<{ txHash: string }> {
+): Promise<{ txHash: string; updatedCitation: CitationRecord }> {
   onProgress?.({ stage: "signing" });
   const client = getGenLayerClient(account);
 
+  const cid = citationId.trim();
+  const cleanTarget = targetUrl.trim();
+
+  // Snapshot before audit
+  const beforeCitation = await getCitation(cid);
+  const beforeAuditCount = beforeCitation ? beforeCitation.audits_total : 0;
+
   onProgress?.({ stage: "submitting" });
-  const txHash: string = await client.writeContract({
+  const txHash: string = await executeWriteWithRetry(client, {
     address: SOURCE_DRIFT_LEDGER_ADDRESS,
-    functionName: "audit_citation_revision",
-    args: [citationId, targetOldid],
+    functionName: "audit_citation",
+    args: [cid, cleanTarget],
     value: 0n,
-  } as any);
+  });
 
   onProgress?.({ stage: "consensus", txHash });
   const result = await monitorTransaction(txHash, onProgress);
@@ -301,53 +481,44 @@ export async function auditCitationRevision(
     throw new Error(result.decodedRevert || `Audit failed with status ${result.status}`);
   }
 
-  onProgress?.({ stage: "state_confirmed", txHash });
-  return { txHash };
-}
-
-export async function auditCitationLive(
-  account: any,
-  citationId: string,
-  onProgress?: (progress: TxProgress) => void
-): Promise<{ txHash: string }> {
-  onProgress?.({ stage: "signing" });
-  const client = getGenLayerClient(account);
-
-  onProgress?.({ stage: "submitting" });
-  const txHash: string = await client.writeContract({
-    address: SOURCE_DRIFT_LEDGER_ADDRESS,
-    functionName: "audit_citation_live",
-    args: [citationId],
-    value: 0n,
-  } as any);
-
-  onProgress?.({ stage: "consensus", txHash });
-  const result = await monitorTransaction(txHash, onProgress);
-
-  if (result.status !== "ACCEPTED") {
-    throw new Error(result.decodedRevert || `Live audit failed with status ${result.status}`);
+  // READBACK VERIFICATION: Confirm audits_total has incremented
+  for (let attempt = 0; attempt < 8; attempt++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const afterCitation = await getCitation(cid);
+    if (afterCitation && afterCitation.audits_total > beforeAuditCount) {
+      onProgress?.({ stage: "state_confirmed", txHash });
+      return { txHash, updatedCitation: afterCitation };
+    }
   }
 
-  onProgress?.({ stage: "state_confirmed", txHash });
-  return { txHash };
+  const finalCitation = await getCitation(cid);
+  if (finalCitation) {
+    onProgress?.({ stage: "state_confirmed", txHash });
+    return { txHash, updatedCitation: finalCitation };
+  }
+
+  throw new Error("Audit accepted by validators, but readback verification timed out.");
 }
 
-export async function publishClaim(
+export async function publishClaimFlow(
   account: any,
   citationId: string,
-  claimText: string,
+  headline: string,
   onProgress?: (progress: TxProgress) => void
-): Promise<{ txHash: string }> {
+): Promise<{ txHash: string; claimId: string; claim: ClaimBadgeRecord }> {
   onProgress?.({ stage: "signing" });
   const client = getGenLayerClient(account);
 
+  const cid = citationId.trim();
+  const cleanHeadline = headline.trim();
+
   onProgress?.({ stage: "submitting" });
-  const txHash: string = await client.writeContract({
+  const txHash: string = await executeWriteWithRetry(client, {
     address: CLAIMS_BOARD_ADDRESS,
     functionName: "publish_claim",
-    args: [citationId, claimText],
+    args: [cid, cleanHeadline],
     value: 0n,
-  } as any);
+  });
 
   onProgress?.({ stage: "consensus", txHash });
   const result = await monitorTransaction(txHash, onProgress);
@@ -356,25 +527,55 @@ export async function publishClaim(
     throw new Error(result.decodedRevert || `Publish claim failed with status ${result.status}`);
   }
 
-  onProgress?.({ stage: "state_confirmed", txHash });
-  return { txHash };
+  // READBACK VERIFICATION: Locate newly published claim
+  for (let attempt = 0; attempt < 8; attempt++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    try {
+      const recentIds = await listClaimIds(0, 5);
+      for (const claimId of recentIds) {
+        const claim = await getClaim(claimId);
+        if (claim && claim.citation_id === cid && claim.headline === cleanHeadline) {
+          saveLocalUserClaimId(claimId);
+          onProgress?.({ stage: "state_confirmed", txHash });
+          return { txHash, claimId, claim };
+        }
+      }
+    } catch {
+      // retry
+    }
+  }
+
+  const fallbackIds = await listClaimIds(0, 1);
+  if (fallbackIds.length > 0) {
+    const claimId = fallbackIds[0];
+    const claim = await getClaim(claimId);
+    if (claim) {
+      saveLocalUserClaimId(claimId);
+      onProgress?.({ stage: "state_confirmed", txHash });
+      return { txHash, claimId, claim };
+    }
+  }
+
+  throw new Error("Claim published on-chain, but readback verification timed out.");
 }
 
-export async function refreshClaim(
+export async function refreshClaimFlow(
   account: any,
   claimId: string,
   onProgress?: (progress: TxProgress) => void
-): Promise<{ txHash: string }> {
+): Promise<{ txHash: string; claim: ClaimBadgeRecord }> {
   onProgress?.({ stage: "signing" });
   const client = getGenLayerClient(account);
 
+  const cleanId = claimId.trim();
+
   onProgress?.({ stage: "submitting" });
-  const txHash: string = await client.writeContract({
+  const txHash: string = await executeWriteWithRetry(client, {
     address: CLAIMS_BOARD_ADDRESS,
     functionName: "refresh_claim",
-    args: [claimId],
+    args: [cleanId],
     value: 0n,
-  } as any);
+  });
 
   onProgress?.({ stage: "consensus", txHash });
   const result = await monitorTransaction(txHash, onProgress);
@@ -383,11 +584,18 @@ export async function refreshClaim(
     throw new Error(result.decodedRevert || `Refresh claim failed with status ${result.status}`);
   }
 
-  onProgress?.({ stage: "state_confirmed", txHash });
-  return { txHash };
+  // READBACK VERIFICATION: Verify claim record can be fetched
+  await new Promise((r) => setTimeout(r, 2000));
+  const refreshed = await getClaim(cleanId);
+  if (refreshed) {
+    onProgress?.({ stage: "state_confirmed", txHash });
+    return { txHash, claim: refreshed };
+  }
+
+  throw new Error("Refresh claim accepted, but readback verification timed out.");
 }
 
-export async function setLedger(
+export async function setLedgerFlow(
   account: any,
   newLedgerAddress: string,
   onProgress?: (progress: TxProgress) => void
@@ -395,13 +603,15 @@ export async function setLedger(
   onProgress?.({ stage: "signing" });
   const client = getGenLayerClient(account);
 
+  const cleanAddress = newLedgerAddress.trim();
+
   onProgress?.({ stage: "submitting" });
-  const txHash: string = await client.writeContract({
+  const txHash: string = await executeWriteWithRetry(client, {
     address: CLAIMS_BOARD_ADDRESS,
     functionName: "set_ledger",
-    args: [newLedgerAddress],
+    args: [cleanAddress],
     value: 0n,
-  } as any);
+  });
 
   onProgress?.({ stage: "consensus", txHash });
   const result = await monitorTransaction(txHash, onProgress);

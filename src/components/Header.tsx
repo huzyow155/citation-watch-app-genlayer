@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Copy, Check, RefreshCw, Key, ExternalLink, ShieldCheck } from "lucide-react";
+import { Copy, Check, RefreshCw, ExternalLink } from "lucide-react";
 import { useWallet } from "../context/WalletContext";
 import {
   SOURCE_DRIFT_LEDGER_ADDRESS,
-  CLAIMS_BOARD_ADDRESS,
-  NETWORK_STATUS,
   getExplorerAddressUrl,
 } from "../config/chain";
 
@@ -48,9 +46,6 @@ export const Header: React.FC = () => {
             <div>
               <span className="text-lg font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors">
                 CitationWatch
-              </span>
-              <span className="block text-[10px] font-mono uppercase tracking-wider text-cyan-400">
-                {NETWORK_STATUS}
               </span>
             </div>
           </Link>
@@ -96,16 +91,15 @@ export const Header: React.FC = () => {
             </a>
           </div>
 
-          {/* Wallet Pill */}
+          {/* Wallet Pill - No green dot, shortened address or Connect */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowWalletModal(true)}
-              className="flex items-center space-x-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200 hover:border-cyan-500 transition-colors"
+              className="flex items-center space-x-2 rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-200 hover:border-cyan-500 transition-colors"
             >
-              <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-mono">
-                {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connecting..."}
+                {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Connect"}
               </span>
             </button>
           </div>
@@ -118,7 +112,7 @@ export const Header: React.FC = () => {
           <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-6 text-slate-100 shadow-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-white">Studionet Throwaway Key</h3>
+                <h3 className="text-lg font-bold text-white">Wallet Connection</h3>
                 <p className="mt-1 text-xs text-amber-300 font-medium">{disclaimer}</p>
               </div>
               <button
@@ -133,14 +127,16 @@ export const Header: React.FC = () => {
             <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950 p-3">
               <span className="text-xs text-slate-400 block mb-1">Active Address</span>
               <div className="flex items-center justify-between">
-                <span className="font-mono text-xs break-all text-cyan-300">{address}</span>
-                <button
-                  type="button"
-                  onClick={copyAddress}
-                  className="ml-2 text-slate-400 hover:text-white"
-                >
-                  {copiedAddr ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
-                </button>
+                <span className="font-mono text-xs break-all text-cyan-300">{address || "None"}</span>
+                {address && (
+                  <button
+                    type="button"
+                    onClick={copyAddress}
+                    className="ml-2 text-slate-400 hover:text-white"
+                  >
+                    {copiedAddr ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                )}
               </div>
             </div>
 

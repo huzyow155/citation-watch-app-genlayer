@@ -1,58 +1,79 @@
 {
-  "verifiedAt": "2026-10-17T03:00:17.692Z",
+  "verifiedAt": "2026-10-17T06:16:53.676Z",
   "productionUrl": "https://citation-watch-app-genlayer.vercel.app",
   "network": "GenLayer Studionet (Preview)",
-  "tests": [
+  "chainId": 61999,
+  "runnerAddress": "0xcCDbAb11A805C8C20BEd5f7e83a61A7ea443b898",
+  "disclaimer": "Studionet-only throwaway key. Preview network, no real value.",
+  "landingChecks": {
+    "typewriterCompleted": true,
+    "reducedMotionInstant": true,
+    "noMobileHorizontalOverflow": true
+  },
+  "transactions": [
     {
-      "name": "Desktop Landing (1280x800)",
-      "passed": true,
-      "title": "CitationWatch — Decentralized Source Drift & Citation Ledger",
-      "screenshot": "docs/screens/01_landing_desktop_1280.png"
+      "operation": "register_citation",
+      "txHash": "0xfb4bd93fe48ce0ef8208757290929ccdf2da92677fd37f0f901a4500ffc9fc99",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xfb4bd93fe48ce0ef8208757290929ccdf2da92677fd37f0f901a4500ffc9fc99",
+      "citationId": "ef59e81d5e56",
+      "receiptStatus": "ACCEPTED",
+      "elapsedSeconds": 15.78
     },
     {
-      "name": "Mobile Landing (390x844)",
-      "passed": true,
-      "screenshot": "docs/screens/02_landing_mobile_390.png"
+      "operation": "audit_citation",
+      "txHash": "0x035d2cd00db4c43692aa3e644d8b717a258b67dd170125e5801fb2cf592d537c",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x035d2cd00db4c43692aa3e644d8b717a258b67dd170125e5801fb2cf592d537c",
+      "citationId": "ef59e81d5e56",
+      "verdict": "UNCHANGED",
+      "receiptStatus": "ACCEPTED",
+      "elapsedSeconds": 17.22
     },
     {
-      "name": "Workbench Explore Tab",
-      "passed": true,
-      "screenshot": "docs/screens/03_workbench_explore.png"
+      "operation": "publish_claim",
+      "txHash": "0x43641a24977f30707f8f020496de8a155b312a79b65051187ddefa7f49f4c56a",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x43641a24977f30707f8f020496de8a155b312a79b65051187ddefa7f49f4c56a",
+      "claimId": "56d9663a46e2",
+      "receiptStatus": "ACCEPTED",
+      "elapsedSeconds": 9.35
     },
     {
-      "name": "Workbench Detail Tab",
-      "passed": true,
-      "screenshot": "docs/screens/04_workbench_detail.png"
-    },
-    {
-      "name": "Workbench Register Tab",
-      "passed": true,
-      "screenshot": "docs/screens/05_workbench_register.png"
-    },
-    {
-      "name": "Workbench Audit Tab",
-      "passed": true,
-      "screenshot": "docs/screens/06_workbench_audit.png"
-    },
-    {
-      "name": "Workbench Claims Board Tab",
-      "passed": true,
-      "screenshot": "docs/screens/07_workbench_claims.png"
-    },
-    {
-      "name": "Workbench Admin Tab",
-      "passed": true,
-      "screenshot": "docs/screens/08_workbench_admin.png"
-    },
-    {
-      "name": "Workbench Honest Evidence Tab",
-      "passed": true,
-      "screenshot": "docs/screens/09_workbench_evidence.png"
-    },
-    {
-      "name": "Reduced Motion Accessibility",
-      "passed": true,
-      "screenshot": "docs/screens/10_reduced_motion.png"
+      "operation": "refresh_claim",
+      "txHash": "0xa24e9006b982c012323f8e22c6b960a8a8265e5ec69eb972a67f873df9a5708f",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xa24e9006b982c012323f8e22c6b960a8a8265e5ec69eb972a67f873df9a5708f",
+      "claimId": "56d9663a46e2",
+      "receiptStatus": "ACCEPTED",
+      "elapsedSeconds": 9.09
     }
+  ],
+  "readbackVerifications": [
+    {
+      "citationId": "ef59e81d5e56",
+      "articleTitle": "Alan Turing",
+      "oldid": "1379625434",
+      "registrant": "0x56415851C3dDc1232807522198fA6Fb07f78A95A",
+      "registrantMatchesAccount": false
+    }
+  ],
+  "negativeFlows": [
+    {
+      "scenario": "Non-verbatim quote in baseline permalink",
+      "quote": "Alan Turing walked on the surface of the Moon in 1969.",
+      "status": "REVERTED",
+      "decodedRevert": "The supplied quote was not found verbatim in the baseline revision text.",
+      "elapsedSeconds": 29.51
+    }
+  ],
+  "screenshots": [
+    "docs/screens/01_landing_mobile_390.png",
+    "docs/screens/02_landing_desktop_1280.png",
+    "docs/screens/03_negative_revert_modal.png",
+    "docs/screens/04_registration_accepted_modal.png",
+    "docs/screens/05_citation_detail_readback.png",
+    "docs/screens/06_audit_accepted_modal.png",
+    "docs/screens/07_audit_verdict_detail.png",
+    "docs/screens/08_publish_claim_modal.png",
+    "docs/screens/09_refresh_claim_modal.png",
+    "docs/screens/10_admin_controls.png",
+    "docs/screens/11_workbench_evidence_tab.png"
   ]
 }
