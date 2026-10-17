@@ -398,6 +398,14 @@ export async function registerCitationFlow(
   const cleanUrl = baselineUrl.trim();
   const quotesJson = JSON.stringify(quotes.map((q) => q.trim()));
 
+  const preExistingIds = new Set<string>();
+  try {
+    const initialList = await listCitationIds(0, 50);
+    initialList.forEach((id) => preExistingIds.add(id));
+  } catch {
+    // continue
+  }
+
   onProgress?.({ stage: "submitting" });
   const txHash: string = await executeWriteWithRetry(client, {
     address: SOURCE_DRIFT_LEDGER_ADDRESS,
@@ -413,21 +421,24 @@ export async function registerCitationFlow(
     throw new Error(result.decodedRevert || `Registration failed with status ${result.status}`);
   }
 
-  // READBACK VERIFICATION: Poll list_citation_ids to locate newly registered citation ID
-  for (let attempt = 0; attempt < 8; attempt++) {
+  // READBACK VERIFICATION: Locate newly registered citation ID strictly matching runner account and inputs
+  for (let attempt = 0; attempt < 12; attempt++) {
     await new Promise((r) => setTimeout(r, 2000));
     try {
-      const recentIds = await listCitationIds(0, 5);
+      const recentIds = await listCitationIds(0, 10);
       for (const cid of recentIds) {
-        const record = await getCitation(cid);
-        if (
-          record &&
-          record.label === cleanLabel &&
-          record.baseline_url === cleanUrl
-        ) {
-          saveLocalUserCitationId(cid);
-          onProgress?.({ stage: "state_confirmed", txHash });
-          return { txHash, citationId: cid, record };
+        if (!preExistingIds.has(cid)) {
+          const record = await getCitation(cid);
+          if (
+            record &&
+            record.registrant.toLowerCase() === account.address.toLowerCase() &&
+            record.label === cleanLabel &&
+            record.baseline_url === cleanUrl
+          ) {
+            saveLocalUserCitationId(cid);
+            onProgress?.({ stage: "state_confirmed", txHash });
+            return { txHash, citationId: cid, record };
+          }
         }
       }
     } catch {
@@ -435,19 +446,7 @@ export async function registerCitationFlow(
     }
   }
 
-  // Fallback readback if list took time to index
-  const fallbackIds = await listCitationIds(0, 1);
-  if (fallbackIds.length > 0) {
-    const cid = fallbackIds[0];
-    const record = await getCitation(cid);
-    if (record) {
-      saveLocalUserCitationId(cid);
-      onProgress?.({ stage: "state_confirmed", txHash });
-      return { txHash, citationId: cid, record };
-    }
-  }
-
-  throw new Error("Transaction accepted by validators, but readback verification timed out.");
+  throw new Error("Transaction accepted by validators, but newly created citation readback verification timed out.");
 }
 
 export async function auditCitationFlow(
@@ -512,6 +511,14 @@ export async function publishClaimFlow(
   const cid = citationId.trim();
   const cleanHeadline = headline.trim();
 
+  const preExistingClaimIds = new Set<string>();
+  try {
+    const initialClaims = await listClaimIds(0, 50);
+    initialClaims.forEach((id) => preExistingClaimIds.add(id));
+  } catch {
+    // continue
+  }
+
   onProgress?.({ stage: "submitting" });
   const txHash: string = await executeWriteWithRetry(client, {
     address: CLAIMS_BOARD_ADDRESS,
@@ -527,17 +534,24 @@ export async function publishClaimFlow(
     throw new Error(result.decodedRevert || `Publish claim failed with status ${result.status}`);
   }
 
-  // READBACK VERIFICATION: Locate newly published claim
-  for (let attempt = 0; attempt < 8; attempt++) {
+  // READBACK VERIFICATION: Locate newly published claim strictly matching runner account and inputs
+  for (let attempt = 0; attempt < 12; attempt++) {
     await new Promise((r) => setTimeout(r, 2000));
     try {
-      const recentIds = await listClaimIds(0, 5);
+      const recentIds = await listClaimIds(0, 10);
       for (const claimId of recentIds) {
-        const claim = await getClaim(claimId);
-        if (claim && claim.citation_id === cid && claim.headline === cleanHeadline) {
-          saveLocalUserClaimId(claimId);
-          onProgress?.({ stage: "state_confirmed", txHash });
-          return { txHash, claimId, claim };
+        if (!preExistingClaimIds.has(claimId)) {
+          const claim = await getClaim(claimId);
+          if (
+            claim &&
+            claim.publisher.toLowerCase() === account.address.toLowerCase() &&
+            claim.citation_id === cid &&
+            claim.headline === cleanHeadline
+          ) {
+            saveLocalUserClaimId(claimId);
+            onProgress?.({ stage: "state_confirmed", txHash });
+            return { txHash, claimId, claim };
+          }
         }
       }
     } catch {
@@ -545,18 +559,7 @@ export async function publishClaimFlow(
     }
   }
 
-  const fallbackIds = await listClaimIds(0, 1);
-  if (fallbackIds.length > 0) {
-    const claimId = fallbackIds[0];
-    const claim = await getClaim(claimId);
-    if (claim) {
-      saveLocalUserClaimId(claimId);
-      onProgress?.({ stage: "state_confirmed", txHash });
-      return { txHash, claimId, claim };
-    }
-  }
-
-  throw new Error("Claim published on-chain, but readback verification timed out.");
+  throw new Error("Claim published on-chain, but newly created claim readback verification timed out.");
 }
 
 export async function refreshClaimFlow(

@@ -48,7 +48,7 @@ export const Workbench: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("explore");
 
   // Exploration & Detail state
-  const [selectedCitationId, setSelectedCitationId] = useState<string>("bbee352df865");
+  const [selectedCitationId, setSelectedCitationId] = useState<string>("");
   const [searchCitationId, setSearchCitationId] = useState<string>("");
   const [citationData, setCitationData] = useState<CitationRecord | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
@@ -73,9 +73,9 @@ export const Workbench: React.FC = () => {
   const [auditTargetUrl, setAuditTargetUrl] = useState("https://en.wikipedia.org/w/index.php?title=Ada_Lovelace&oldid=1379797630");
 
   // Claims Board form state
-  const [claimCitationId, setClaimCitationId] = useState("bbee352df865");
-  const [claimHeadline, setClaimHeadline] = useState("Alan Turing savings preservation during wartime");
-  const [selectedClaimId, setSelectedClaimId] = useState("56d9663a46e2");
+  const [claimCitationId, setClaimCitationId] = useState("");
+  const [claimHeadline, setClaimHeadline] = useState("");
+  const [selectedClaimId, setSelectedClaimId] = useState("");
   const [liveClaims, setLiveClaims] = useState<ClaimBadgeRecord[]>([]);
 
   // Admin state
@@ -190,8 +190,13 @@ export const Workbench: React.FC = () => {
 
   // Fetch Citation Details
   const loadCitationDetails = async (id: string) => {
+    if (!id) {
+      setCitationData(null);
+      return;
+    }
     setIsLoadingDetails(true);
     setDetailRpcError(null);
+    setCitationData(null); // Clear previous citation to prevent rendering stale data
     try {
       if (citationCacheRef.current.has(id)) {
         setCitationData(citationCacheRef.current.get(id)!);
@@ -248,13 +253,15 @@ export const Workbench: React.FC = () => {
         setTxProgress
       );
       setSelectedCitationId(citationId);
+      setClaimCitationId(citationId);
       setActiveTab("detail");
     } catch (err: any) {
       console.error(err);
-      setTxProgress({
+      setTxProgress((prev) => ({
+        ...prev,
         stage: "reverted",
         decodedRevert: err?.message || "Contract execution failed",
-      });
+      }));
     }
   };
 
@@ -269,10 +276,11 @@ export const Workbench: React.FC = () => {
       loadCitationDetails(selectedCitationId);
     } catch (err: any) {
       console.error(err);
-      setTxProgress({
+      setTxProgress((prev) => ({
+        ...prev,
         stage: "reverted",
         decodedRevert: err?.message || "Contract execution failed",
-      });
+      }));
     }
   };
 
@@ -287,10 +295,11 @@ export const Workbench: React.FC = () => {
       setSelectedClaimId(claimId);
     } catch (err: any) {
       console.error(err);
-      setTxProgress({
+      setTxProgress((prev) => ({
+        ...prev,
         stage: "reverted",
         decodedRevert: err?.message || "Contract execution failed",
-      });
+      }));
     }
   };
 
@@ -304,10 +313,11 @@ export const Workbench: React.FC = () => {
       await refreshClaimFlow(account, selectedClaimId, setTxProgress);
     } catch (err: any) {
       console.error(err);
-      setTxProgress({
+      setTxProgress((prev) => ({
+        ...prev,
         stage: "reverted",
         decodedRevert: err?.message || "Contract execution failed",
-      });
+      }));
     }
   };
 

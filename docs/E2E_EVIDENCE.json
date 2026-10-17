@@ -1,9 +1,9 @@
 {
-  "verifiedAt": "2026-10-17T06:16:53.676Z",
+  "verifiedAt": "2026-10-17T10:46:19.228Z",
   "productionUrl": "https://citation-watch-app-genlayer.vercel.app",
   "network": "GenLayer Studionet (Preview)",
   "chainId": 61999,
-  "runnerAddress": "0xcCDbAb11A805C8C20BEd5f7e83a61A7ea443b898",
+  "runnerAddress": "0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB",
   "disclaimer": "Studionet-only throwaway key. Preview network, no real value.",
   "landingChecks": {
     "typewriterCompleted": true,
@@ -13,54 +13,94 @@
   "transactions": [
     {
       "operation": "register_citation",
-      "txHash": "0xfb4bd93fe48ce0ef8208757290929ccdf2da92677fd37f0f901a4500ffc9fc99",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xfb4bd93fe48ce0ef8208757290929ccdf2da92677fd37f0f901a4500ffc9fc99",
-      "citationId": "ef59e81d5e56",
+      "txHash": "0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99",
+      "citationId": "fcca1095abb0",
       "receiptStatus": "ACCEPTED",
-      "elapsedSeconds": 15.78
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-17T10:47:44.915Z",
+      "finalizedAt": "2026-10-17T10:48:08.685Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 44.18
     },
     {
       "operation": "audit_citation",
-      "txHash": "0x035d2cd00db4c43692aa3e644d8b717a258b67dd170125e5801fb2cf592d537c",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x035d2cd00db4c43692aa3e644d8b717a258b67dd170125e5801fb2cf592d537c",
-      "citationId": "ef59e81d5e56",
+      "auditNumber": 1,
+      "targetUrl": "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1379693800",
+      "targetOldid": "1379693800",
+      "txHash": "0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5",
+      "citationId": "fcca1095abb0",
       "verdict": "UNCHANGED",
       "receiptStatus": "ACCEPTED",
-      "elapsedSeconds": 17.22
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-17T10:48:31.941Z",
+      "finalizedAt": "2026-10-17T10:49:00.035Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 17.24
+    },
+    {
+      "operation": "audit_citation",
+      "auditNumber": 2,
+      "targetUrl": "https://en.wikipedia.org/wiki/Claude_Shannon",
+      "targetKind": "LIVE",
+      "targetOldid": null,
+      "txHash": "0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd",
+      "citationId": "fcca1095abb0",
+      "verdict": "UNCHANGED",
+      "receiptStatus": "ACCEPTED",
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-17T10:49:22.280Z",
+      "finalizedAt": "2026-10-17T10:49:48.077Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 17.11
     },
     {
       "operation": "publish_claim",
-      "txHash": "0x43641a24977f30707f8f020496de8a155b312a79b65051187ddefa7f49f4c56a",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x43641a24977f30707f8f020496de8a155b312a79b65051187ddefa7f49f4c56a",
-      "claimId": "56d9663a46e2",
+      "txHash": "0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509",
+      "claimId": "d8e56d644113",
       "receiptStatus": "ACCEPTED",
-      "elapsedSeconds": 9.35
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-17T10:50:05.517Z",
+      "finalizedAt": "2026-10-17T10:50:29.441Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 10.53
     },
     {
       "operation": "refresh_claim",
-      "txHash": "0xa24e9006b982c012323f8e22c6b960a8a8265e5ec69eb972a67f873df9a5708f",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xa24e9006b982c012323f8e22c6b960a8a8265e5ec69eb972a67f873df9a5708f",
-      "claimId": "56d9663a46e2",
+      "txHash": "0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b",
+      "claimId": "d8e56d644113",
       "receiptStatus": "ACCEPTED",
-      "elapsedSeconds": 9.09
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-17T10:50:47.673Z",
+      "finalizedAt": "2026-10-17T10:51:11.229Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 12.6
     }
   ],
   "readbackVerifications": [
     {
-      "citationId": "ef59e81d5e56",
-      "articleTitle": "Alan Turing",
-      "oldid": "1379625434",
-      "registrant": "0x56415851C3dDc1232807522198fA6Fb07f78A95A",
-      "registrantMatchesAccount": false
+      "citationId": "fcca1095abb0",
+      "articleTitle": "Claude Shannon",
+      "oldid": "1378873158",
+      "registrant": "0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB",
+      "registrantMatchesAccount": true,
+      "isBrandNewId": true,
+      "matchesDeterministicId": true
     }
   ],
   "negativeFlows": [
     {
       "scenario": "Non-verbatim quote in baseline permalink",
-      "quote": "Alan Turing walked on the surface of the Moon in 1969.",
+      "quote": "Claude Shannon walked on Mars in 1952 with an alien delegation.",
+      "txHash": null,
+      "explanation": "Leader simulation reverted execution before consensus; no on-chain transaction hash was emitted.",
       "status": "REVERTED",
       "decodedRevert": "The supplied quote was not found verbatim in the baseline revision text.",
-      "elapsedSeconds": 29.51
+      "elapsedSeconds": 27.35
     }
   ],
   "screenshots": [

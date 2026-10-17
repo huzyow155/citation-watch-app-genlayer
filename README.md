@@ -23,51 +23,63 @@ Both active contracts are deployed on GenLayer Studionet (Preview) and their sou
 
 ---
 
-## Audit Fix Pass (v1.2.0 Production Verification)
+## E2E Evidence Integrity Fix Pass & Root Cause Analysis
 
-This release resolves the 5 audit defects:
+This pass addresses and resolves the 3 audit integrity findings:
 
-1. **Header Polish**: Removed the green pulsing dot and Studionet badges from the wallet pill in `src/components/Header.tsx`. The pill strictly displays the shortened account address (or "Connect"). The mandatory throwaway key disclaimer (`"Studionet-only throwaway key. Preview network, no real value."`) is prominently featured inside the wallet modal and adjacent to every on-chain write button.
-2. **Landing Motion & Responsiveness**:
-   - Built slowly typed typewriter effect in `src/lib/motion.ts` (~45ms/char) where the caret halts upon finishing. Under `prefers-reduced-motion: reduce`, the full text renders immediately without animation.
-   - Staggered scroll-reveal (`IntersectionObserver`) with smooth fade-and-rise on sections and workbench cards (disabled under reduced motion).
-   - Upgraded typography: clean sans-serif blue palette, base body >= 16px, hero >= 3rem desktop.
-   - Responsive layout: verified zero horizontal scroll overflow at mobile 390px viewport (`document.documentElement.scrollWidth <= innerWidth`).
-3. **Explore Live Reads & Caching**:
-   - Replaced static fixtures with live contract hydration via `list_citation_ids`, `get_citation`, `list_claim_ids`, and `get_claim`.
-   - Verified sample citations are explicitly labeled `"Verified sample citations (IDs from our evidence run)"`.
-   - In-memory cache (`useRef`) and tab-gating protect against Cloudflare 30 req/min rate limits.
-   - User-submitted registrations and claims persist across browser reloads via `localStorage`.
-   - Clear RPC error banner with interactive "Retry" button.
-4. **Real Production UI-Driven E2E Suite**:
-   - Automated via Playwright in `scripts/run_e2e.mjs` against `https://citation-watch-app-genlayer.vercel.app`.
-   - All 7 steps executed live with throwaway test account `0xcCDbAb11A805C8C20BEd5f7e83a61A7ea443b898` on GenLayer Studionet (Preview).
-5. **Unit Test Suite (37 tests)**:
-   - 37 passing unit tests in Vitest across 5 test suites (`tests/normalization.test.ts`, `tests/urlParser.test.ts`, `tests/outcome.test.ts`, `tests/txLifecycle.test.ts`, `tests/revertMap.test.ts`).
-   - Audits and covers 100% (66/66) of `gl.vm.UserError` instances across both reference contracts.
-   - Verifies leader receipt decoding for raw base64 and object payloads.
+### 1. Root Cause Analysis & Code Fixes
+- **Root Cause 1 (`registrantMatchesAccount` was FALSE)**:
+  - In `src/pages/Workbench.tsx:51`, `selectedCitationId` defaulted to `"bbee352df865"`.
+  - In `src/pages/Workbench.tsx:192-219`, `loadCitationDetails` did not clear `citationData` before async fetch. The DOM retained the registrant of `bbee352df865` (`0x56415851C3dDc1232807522198fA6Fb07f78A95A`) while fetching, causing readback extraction to capture the previous citation's registrant instead of the runner account.
+  - In `src/services/contractService.ts:428-447`, `registerCitationFlow` fell back to `listCitationIds(0, 1)`.
+  - **Fix**: Cleared hardcoded dummy default IDs (`""`), added `setCitationData(null)` on load start to clear stale state, enforced strict account matching (`record.registrant.toLowerCase() === account.address.toLowerCase()`), and verified against the contract's deterministic ID derivation (`sha256(sender|url|rfp|nonce)[:12]`).
+- **Root Cause 2 (`publish_claim`/`refresh_claim` reported stale claim `56d9663a46e2`)**:
+  - In `src/pages/Workbench.tsx:78`, `selectedClaimId` defaulted to `"56d9663a46e2"`.
+  - In `src/services/contractService.ts:547-556`, `publishClaimFlow` fell back to `listClaimIds(0, 1)`, returning historical claim `56d9663a46e2` (which belonged to citation `a68c69aa9a4d`).
+  - **Fix**: Cleared default claim ID, bound `claimCitationId` directly from the registered citation upon success, took pre-run snapshots of `list_claim_ids`, and asserted that the discovered claim ID was brand new, its `citation_id` strictly equaled this run's citation, and its `publisher` strictly equaled the runner account.
+- **Root Cause 3 (Receipt status, validator votes, and revert transparency)**:
+  - Updated evidence generation and documentation to record exact on-chain receipt statuses (`ACCEPTED` / `FINALIZED`), agree/total validator counts (`3/5`), latencies, and detailed explanation of leader simulation revert (no on-chain tx hash is emitted because revert occurs in the leader VM pre-consensus).
+
+### 2. Failing Assertion Proof on Historical Data
+The script `scripts/verify_assertions_old_evidence.mjs` was executed to verify that the strict integrity assertions fail against the historical commit `9ac126f` data:
+```bash
+node scripts/verify_assertions_old_evidence.mjs
+# Output:
+# [ASSERTION 1] Check: citation registrant === runner account -> ❌ FAILED (0x5641... != 0xcCDb...)
+# [ASSERTION 2] Check: claimId !== '56d9663a46e2' -> ❌ FAILED (reported identical historical claim)
+# [ASSERTION 3] Check: claim.citation_id === this run's citationId -> ❌ FAILED (bound to a68c69aa9a4d)
+# [ASSERTION 4] Check: claim.publisher === runner account -> ❌ FAILED (publisher 0x5641... != 0xcCDb...)
+# PROOF COMPLETE: 4 OF 4 INTEGRITY ASSERTIONS FAILED ON OLD DATA.
+```
 
 ---
 
 ## Live On-Chain E2E Execution Evidence
 
-The table below documents the live transactions executed on **GenLayer Studionet (Preview)** through the production dApp UI:
+Executed on **GenLayer Studionet (Preview)** through the production dApp UI (`https://citation-watch-app-genlayer.vercel.app`) using fresh throwaway runner account `0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB`:
 
-| Operation | Target / Input | Tx Hash | Receipt Status | Validator Votes | Latency | Explorer Link |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Negative Flow** | Non-verbatim quote in baseline | *(Leader Revert)* | `REVERTED` | Leader Error | 29.51s | Revert decoded: *"The supplied quote was not found verbatim in the baseline revision text."* |
-| **`register_citation`** | Alan Turing (`oldid 1379625434`) | `0xfb4bd93fe48ce0ef8208757290929ccdf2da92677fd37f0f901a4500ffc9fc99` | `FINALIZED` | 3/5 agree | 15.78s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0xfb4bd93fe48ce0ef8208757290929ccdf2da92677fd37f0f901a4500ffc9fc99) |
-| **`audit_citation`** | Target revision `oldid 1380390650` | `0x035d2cd00db4c43692aa3e644d8b717a258b67dd170125e5801fb2cf592d537c` | `FINALIZED` | 3/5 agree | 17.22s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0x035d2cd00db4c43692aa3e644d8b717a258b67dd170125e5801fb2cf592d537c) |
-| **`publish_claim`** | ClaimsBoard assertion for citation | `0x43641a24977f30707f8f020496de8a155b312a79b65051187ddefa7f49f4c56a` | `FINALIZED` | 3/5 agree | 9.35s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0x43641a24977f30707f8f020496de8a155b312a79b65051187ddefa7f49f4c56a) |
-| **`refresh_claim`** | Synchronize badge from ledger | `0xa24e9006b982c012323f8e22c6b960a8a8265e5ec69eb972a67f873df9a5708f` | `ACCEPTED` | 3/5 agree | 9.09s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0xa24e9006b982c012323f8e22c6b960a8a8265e5ec69eb972a67f873df9a5708f) |
+| Operation | Target / Input | Tx Hash | Receipt Status | Final Status | Validator Votes | Latency | Explorer Link |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Negative Flow** | Non-verbatim quote in baseline | *(Leader Revert)* | `REVERTED` | `REVERTED` | Leader Error | 27.35s | Revert decoded: *"The supplied quote was not found verbatim in the baseline revision text."* |
+| **`register_citation`** | Claude Shannon (`oldid 1378873158`, quote: *"From 1956 to 1978, he was a professor at MIT."*) | [`0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99`](https://explorer-studio.genlayer.com/tx/0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99) | `ACCEPTED` | `FINALIZED` | 3/5 agree | 44.18s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99) |
+| **`audit_citation` #1** | Target revision `oldid 1379693800` | [`0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5`](https://explorer-studio.genlayer.com/tx/0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5) | `ACCEPTED` | `FINALIZED` | 3/5 agree | 17.24s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5) |
+| **`audit_citation` #2** | Live page `https://en.wikipedia.org/wiki/Claude_Shannon` | [`0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd`](https://explorer-studio.genlayer.com/tx/0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd) | `ACCEPTED` | `FINALIZED` | 3/5 agree | 17.11s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd) |
+| **`publish_claim`** | ClaimsBoard assertion for citation `fcca1095abb0` | [`0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509`](https://explorer-studio.genlayer.com/tx/0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509) | `ACCEPTED` | `FINALIZED` | 3/5 agree | 10.53s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509) |
+| **`refresh_claim`** | Synchronize badge from ledger for claim `d8e56d644113` | [`0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b`](https://explorer-studio.genlayer.com/tx/0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b) | `ACCEPTED` | `FINALIZED` | 3/5 agree | 12.60s | [View on Explorer](https://explorer-studio.genlayer.com/tx/0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b) |
 
-### Readback Verification
+### Readback & Integrity Verification Results
 
-- **Citation ID**: `ef59e81d5e56`
-- **Article Title**: `Alan Turing`
-- **Baseline Oldid**: `1379625434`
-- **Audit #1 Verdict**: `UNCHANGED` (verbatim match across revisions, deterministic SAME layer)
-- **Claim ID**: `56d9663a46e2`
+- **Runner Account**: `0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB`
+- **Citation ID**: `fcca1095abb0` (brand new on-chain ID)
+- **Article Title**: `Claude Shannon`
+- **Baseline Oldid**: `1378873158`
+- **Registrant Address**: `0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB` (`registrantMatchesAccount: true`)
+- **Deterministic ID Match**: `true` (`sha256(sender|url|rfp|15)[:12]` equals `fcca1095abb0`)
+- **Audit #1 Verdict**: `UNCHANGED` (revision `1379693800`, deterministic SAME layer)
+- **Audit #2 Verdict**: `UNCHANGED` (live Wikipedia page `Claude_Shannon`, consensus without live fingerprint)
+- **Claim ID**: `d8e56d644113` (brand new ID, distinct from historical `56d9663a46e2`)
+- **Claim Citation ID**: `fcca1095abb0` (strictly bound to this run's citation)
+- **Claim Publisher**: `0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB` (strictly matches runner)
 - **Claim Badge**: `VERIFIED`
 
 ---
