@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1120" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <!-- Deep Blue / Cyan Accent Gradient -->
+    <linearGradient id="accent-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <!-- Redline / Diff Alert Gradient -->
+    <linearGradient id="redline-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#fb7185" />
+    </linearGradient>
+
+    <!-- Subtle document shield sheen -->
+    <linearGradient id="doc-sheen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- Deep Desk Canvas Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bg-grad)" />
+  <rect width="508" height="508" x="2" y="2" rx="110" fill="none" stroke="#334155" stroke-width="2" stroke-opacity="0.4" />
+
+  <!-- Outer Editorial Compass Ring (Subtle) -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#1e293b" stroke-width="4" stroke-dasharray="6 10" />
+
+  <!-- Document Slate / Shield -->
+  <g filter="url(#shadow)">
+    <!-- Main Manuscript Card -->
+    <rect x="136" y="106" width="240" height="300" rx="20" fill="#0f172a" stroke="#38bdf8" stroke-width="3" stroke-opacity="0.8" />
+    <rect x="136" y="106" width="240" height="300" rx="20" fill="url(#doc-sheen)" />
+
+    <!-- Corner Fold / Tab -->
+    <path d="M 336 106 L 376 146 L 336 146 Z" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+
+    <!-- Editorial Header Marker -->
+    <circle cx="166" cy="138" r="6" fill="#38bdf8" />
+    <rect x="182" y="134" width="70" height="8" rx="4" fill="#94a3b8" />
+
+    <!-- Text Lines (Base Manuscript) -->
+    <rect x="166" y="166" width="180" height="8" rx="4" fill="#475569" />
+    <rect x="166" y="190" width="150" height="8" rx="4" fill="#475569" />
+
+    <!-- Redline / Drift Segment (Highlighted in Coral/Rose) -->
+    <rect x="166" y="214" width="180" height="12" rx="6" fill="#f43f5e" fill-opacity="0.2" stroke="#f43f5e" stroke-width="1.5" />
+    <!-- Strike-through redline indicator -->
+    <line x1="162" y1="220" x2="350" y2="220" stroke="url(#redline-grad)" stroke-width="3.5" stroke-linecap="round" />
+
+    <!-- Subsequent Intact Lines -->
+    <rect x="166" y="244" width="130" height="8" rx="4" fill="#475569" />
+    <rect x="166" y="268" width="170" height="8" rx="4" fill="#475569" />
+    <rect x="166" y="292" width="140" height="8" rx="4" fill="#475569" />
+  </g>
+
+  <!-- Editorial Loupe / Radar Lens Over Redline Segment -->
+  <g filter="url(#shadow)">
+    <!-- Lens Ring -->
+    <circle cx="316" cy="276" r="68" fill="#0b1120" fill-opacity="0.85" stroke="url(#accent-cyan)" stroke-width="6" />
+    <!-- Inner Lens Reticle -->
+    <circle cx="316" cy="276" r="54" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 4" stroke-opacity="0.6" />
+    
+    <!-- Radar / Scope Crosshairs -->
+    <line x1="316" y1="216" x2="316" y2="236" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="316" y1="316" x2="316" y2="336" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="256" y1="276" x2="276" y2="276" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="356" y1="276" x2="376" y2="276" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- Magnified Diff Text inside Lens -->
+    <rect x="280" y="266" width="72" height="6" rx="3" fill="#38bdf8" />
+    <rect x="274" y="280" width="84" height="6" rx="3" fill="#fb7185" />
+
+    <!-- Loupe Handle (Angled Down-Right) -->
+    <path d="M 364 324 L 416 376" stroke="#0284c7" stroke-width="16" stroke-linecap="round" />
+    <path d="M 364 324 L 416 376" stroke="#38bdf8" stroke-width="8" stroke-linecap="round" />
+  </g>
+
+  <!-- Verifying Node Indicator Pill (Bottom Left) -->
+  <g filter="url(#shadow)">
+    <rect x="96" y="364" width="136" height="38" rx="19" fill="#0f172a" stroke="#10b981" stroke-width="2" />
+    <circle cx="116" cy="383" r="6" fill="#10b981">
+      <animate attributeName="opacity" values="1;0.4;1" dur="2.4s" repeatCount="indefinite" />
+    </circle>
+    <text x="132" y="388" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#f8fafc" letter-spacing="1">LEDGER</text>
+  </g>
+</svg>
