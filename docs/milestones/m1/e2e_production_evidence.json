@@ -1,0 +1,119 @@
+{
+  "verifiedAt": "2026-10-24T14:12:15.039Z",
+  "productionUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "network": "GenLayer Studionet (Preview)",
+  "chainId": 61999,
+  "runnerAddress": "0xaB43e888e29766715f41527CD8d1B9e700130ed6",
+  "disclaimer": "Studionet-only throwaway key. Preview network, no real value.",
+  "landingChecks": {
+    "typewriterCompleted": true,
+    "reducedMotionInstant": true,
+    "noMobileHorizontalOverflow": true
+  },
+  "transactions": [
+    {
+      "operation": "register_citation",
+      "txHash": "0x93077c60796cba6beb5f50248f879938f778538084a72ff12c1c6623e72530c2",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x93077c60796cba6beb5f50248f879938f778538084a72ff12c1c6623e72530c2",
+      "citationId": "e090f12c5a84",
+      "receiptStatus": "ACCEPTED",
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-24T14:12:55.896Z",
+      "finalizedAt": "2026-10-24T14:13:19.741Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 10.54
+    },
+    {
+      "operation": "audit_citation",
+      "auditNumber": 1,
+      "targetUrl": "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1379693800",
+      "targetOldid": "1379693800",
+      "txHash": "0xc45a12acd32381da4a5c8bbeaec42768f89b28a365cec17d48422ba8c4e385c6",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xc45a12acd32381da4a5c8bbeaec42768f89b28a365cec17d48422ba8c4e385c6",
+      "citationId": "e090f12c5a84",
+      "verdict": "UNCHANGED",
+      "receiptStatus": "ACCEPTED",
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-24T14:13:37.201Z",
+      "finalizedAt": "2026-10-24T14:14:04.281Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 10.55
+    },
+    {
+      "operation": "audit_citation",
+      "auditNumber": 2,
+      "targetUrl": "https://en.wikipedia.org/wiki/Claude_Shannon",
+      "targetKind": "LIVE",
+      "targetOldid": null,
+      "txHash": "0x238925f08a895adc6544b558ff0d00038b7d0f5410ae34fc30092857dc43f967",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x238925f08a895adc6544b558ff0d00038b7d0f5410ae34fc30092857dc43f967",
+      "citationId": "e090f12c5a84",
+      "verdict": "UNCHANGED",
+      "receiptStatus": "ACCEPTED",
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-24T14:14:24.033Z",
+      "finalizedAt": "2026-10-24T14:14:51.006Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 14.6
+    },
+    {
+      "operation": "publish_claim",
+      "txHash": "0xcad053b4826482c6306cb8f959530114897d5f4d19948189bb6a557c1e56fa40",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xcad053b4826482c6306cb8f959530114897d5f4d19948189bb6a557c1e56fa40",
+      "claimId": "44749b00ea83",
+      "receiptStatus": "ACCEPTED",
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-24T14:15:10.006Z",
+      "finalizedAt": "2026-10-24T14:15:33.780Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 11.07
+    },
+    {
+      "operation": "refresh_claim",
+      "txHash": "0xb3716a1966913a83fbabaad056e4e94c2012455f40dc1e39d2164dd8819c63c4",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xb3716a1966913a83fbabaad056e4e94c2012455f40dc1e39d2164dd8819c63c4",
+      "claimId": "44749b00ea83",
+      "receiptStatus": "ACCEPTED",
+      "finalStatus": "FINALIZED",
+      "acceptedAt": "2026-10-24T14:15:49.805Z",
+      "finalizedAt": "2026-10-24T14:16:13.255Z",
+      "validatorVotes": "3/5",
+      "elapsedSeconds": 9.55
+    }
+  ],
+  "readbackVerifications": [
+    {
+      "citationId": "e090f12c5a84",
+      "articleTitle": "Claude Shannon",
+      "oldid": "1378873158",
+      "registrant": "0xaB43e888e29766715f41527CD8d1B9e700130ed6",
+      "registrantMatchesAccount": true,
+      "isBrandNewId": true,
+      "matchesDeterministicId": true
+    }
+  ],
+  "negativeFlows": [
+    {
+      "scenario": "Non-verbatim quote in baseline permalink",
+      "quote": "Claude Shannon walked on Mars in 1952 with an alien delegation.",
+      "txHash": null,
+      "explanation": "Leader simulation reverted execution before consensus; no on-chain transaction hash was emitted.",
+      "status": "REVERTED",
+      "decodedRevert": "The supplied quote was not found verbatim in the baseline revision text.",
+      "elapsedSeconds": 10.89
+    }
+  ],
+  "screenshots": [
+    "docs/screens/01_landing_mobile_390.png",
+    "docs/screens/02_landing_desktop_1280.png",
+    "docs/screens/03_negative_revert_modal.png",
+    "docs/screens/04_registration_accepted_modal.png",
+    "docs/screens/05_citation_detail_readback.png",
+    "docs/screens/06_audit_accepted_modal.png",
+    "docs/screens/07_audit_verdict_detail.png",
+    "docs/screens/08_publish_claim_modal.png",
+    "docs/screens/09_refresh_claim_modal.png",
+    "docs/screens/10_admin_controls.png",
+    "docs/screens/11_workbench_evidence_tab.png"
+  ]
+}

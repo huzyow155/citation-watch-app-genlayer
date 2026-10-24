@@ -1,9 +1,9 @@
 {
-  "verifiedAt": "2026-10-17T10:46:19.228Z",
+  "verifiedAt": "2026-10-24T14:12:15.039Z",
   "productionUrl": "https://citation-watch-app-genlayer.vercel.app",
   "network": "GenLayer Studionet (Preview)",
   "chainId": 61999,
-  "runnerAddress": "0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB",
+  "runnerAddress": "0xaB43e888e29766715f41527CD8d1B9e700130ed6",
   "disclaimer": "Studionet-only throwaway key. Preview network, no real value.",
   "landingChecks": {
     "typewriterCompleted": true,
@@ -13,31 +13,31 @@
   "transactions": [
     {
       "operation": "register_citation",
-      "txHash": "0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x22d54b28912b891d0f0bfd200394bf51cff7741a10812f493999a4f601f09d99",
-      "citationId": "fcca1095abb0",
+      "txHash": "0x93077c60796cba6beb5f50248f879938f778538084a72ff12c1c6623e72530c2",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x93077c60796cba6beb5f50248f879938f778538084a72ff12c1c6623e72530c2",
+      "citationId": "e090f12c5a84",
       "receiptStatus": "ACCEPTED",
       "finalStatus": "FINALIZED",
-      "acceptedAt": "2026-10-17T10:47:44.915Z",
-      "finalizedAt": "2026-10-17T10:48:08.685Z",
+      "acceptedAt": "2026-10-24T14:12:55.896Z",
+      "finalizedAt": "2026-10-24T14:13:19.741Z",
       "validatorVotes": "3/5",
-      "elapsedSeconds": 44.18
+      "elapsedSeconds": 10.54
     },
     {
       "operation": "audit_citation",
       "auditNumber": 1,
       "targetUrl": "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1379693800",
       "targetOldid": "1379693800",
-      "txHash": "0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xaf274d3d224bc403ebede8f9d554c3192a8b36eaa879a44811fd7c42d86d13f5",
-      "citationId": "fcca1095abb0",
+      "txHash": "0xc45a12acd32381da4a5c8bbeaec42768f89b28a365cec17d48422ba8c4e385c6",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xc45a12acd32381da4a5c8bbeaec42768f89b28a365cec17d48422ba8c4e385c6",
+      "citationId": "e090f12c5a84",
       "verdict": "UNCHANGED",
       "receiptStatus": "ACCEPTED",
       "finalStatus": "FINALIZED",
-      "acceptedAt": "2026-10-17T10:48:31.941Z",
-      "finalizedAt": "2026-10-17T10:49:00.035Z",
+      "acceptedAt": "2026-10-24T14:13:37.201Z",
+      "finalizedAt": "2026-10-24T14:14:04.281Z",
       "validatorVotes": "3/5",
-      "elapsedSeconds": 17.24
+      "elapsedSeconds": 10.55
     },
     {
       "operation": "audit_citation",
@@ -45,48 +45,48 @@
       "targetUrl": "https://en.wikipedia.org/wiki/Claude_Shannon",
       "targetKind": "LIVE",
       "targetOldid": null,
-      "txHash": "0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x2d50850899235603b699c102f554f1f0a8d181f6abe8924baa547b506c9f7acd",
-      "citationId": "fcca1095abb0",
+      "txHash": "0x238925f08a895adc6544b558ff0d00038b7d0f5410ae34fc30092857dc43f967",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x238925f08a895adc6544b558ff0d00038b7d0f5410ae34fc30092857dc43f967",
+      "citationId": "e090f12c5a84",
       "verdict": "UNCHANGED",
       "receiptStatus": "ACCEPTED",
       "finalStatus": "FINALIZED",
-      "acceptedAt": "2026-10-17T10:49:22.280Z",
-      "finalizedAt": "2026-10-17T10:49:48.077Z",
+      "acceptedAt": "2026-10-24T14:14:24.033Z",
+      "finalizedAt": "2026-10-24T14:14:51.006Z",
       "validatorVotes": "3/5",
-      "elapsedSeconds": 17.11
+      "elapsedSeconds": 14.6
     },
     {
       "operation": "publish_claim",
-      "txHash": "0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x7a4bec5982666e4678c98db63c6d0bcec78f2f04471396de9aa877821f2a8509",
-      "claimId": "d8e56d644113",
+      "txHash": "0xcad053b4826482c6306cb8f959530114897d5f4d19948189bb6a557c1e56fa40",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xcad053b4826482c6306cb8f959530114897d5f4d19948189bb6a557c1e56fa40",
+      "claimId": "44749b00ea83",
       "receiptStatus": "ACCEPTED",
       "finalStatus": "FINALIZED",
-      "acceptedAt": "2026-10-17T10:50:05.517Z",
-      "finalizedAt": "2026-10-17T10:50:29.441Z",
+      "acceptedAt": "2026-10-24T14:15:10.006Z",
+      "finalizedAt": "2026-10-24T14:15:33.780Z",
       "validatorVotes": "3/5",
-      "elapsedSeconds": 10.53
+      "elapsedSeconds": 11.07
     },
     {
       "operation": "refresh_claim",
-      "txHash": "0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b",
-      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x67a0e552f7ce67fbb95c0d2348287e4ebab0ad1a6237eaee1892775361cbcf1b",
-      "claimId": "d8e56d644113",
+      "txHash": "0xb3716a1966913a83fbabaad056e4e94c2012455f40dc1e39d2164dd8819c63c4",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xb3716a1966913a83fbabaad056e4e94c2012455f40dc1e39d2164dd8819c63c4",
+      "claimId": "44749b00ea83",
       "receiptStatus": "ACCEPTED",
       "finalStatus": "FINALIZED",
-      "acceptedAt": "2026-10-17T10:50:47.673Z",
-      "finalizedAt": "2026-10-17T10:51:11.229Z",
+      "acceptedAt": "2026-10-24T14:15:49.805Z",
+      "finalizedAt": "2026-10-24T14:16:13.255Z",
       "validatorVotes": "3/5",
-      "elapsedSeconds": 12.6
+      "elapsedSeconds": 9.55
     }
   ],
   "readbackVerifications": [
     {
-      "citationId": "fcca1095abb0",
+      "citationId": "e090f12c5a84",
       "articleTitle": "Claude Shannon",
       "oldid": "1378873158",
-      "registrant": "0xAae33E1CBDa6d9511C278a5289Ab37A7FCc548BB",
+      "registrant": "0xaB43e888e29766715f41527CD8d1B9e700130ed6",
       "registrantMatchesAccount": true,
       "isBrandNewId": true,
       "matchesDeterministicId": true
@@ -100,7 +100,7 @@
       "explanation": "Leader simulation reverted execution before consensus; no on-chain transaction hash was emitted.",
       "status": "REVERTED",
       "decodedRevert": "The supplied quote was not found verbatim in the baseline revision text.",
-      "elapsedSeconds": 27.35
+      "elapsedSeconds": 10.89
     }
   ],
   "screenshots": [

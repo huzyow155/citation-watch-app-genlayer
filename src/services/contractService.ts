@@ -26,6 +26,36 @@ export function getGenLayerClient(account?: any) {
 }
 
 /**
+ * Queries account balance on GenLayer Studionet (Preview) via RPC.
+ */
+export async function getAccountBalance(address: string): Promise<bigint> {
+  try {
+    const client = getGenLayerClient();
+    const bal = await client.getBalance({ address: address as `0x${string}` });
+    return BigInt(bal.toString());
+  } catch (err) {
+    console.warn("getAccountBalance RPC error:", err);
+    return 0n;
+  }
+}
+
+/**
+ * Formats a descriptive, user-friendly error message for failed consensus states.
+ */
+function formatTxFailureMessage(action: string, result: { status: string; decodedRevert?: string; tx?: any }): string {
+  if (result.decodedRevert) {
+    return result.decodedRevert;
+  }
+  if (result.status === "DISAGREED") {
+    return `Consensus Disagreement: The validators could not reach agreement on this ${action} transaction. The target content or validator environment produced differing execution results.`;
+  }
+  if (result.status === "TIMED_OUT") {
+    return `Consensus Timeout: Transaction was submitted to GenLayer Studionet (Preview), but validator consensus did not finalize within the monitoring window. Please check the explorer or try again.`;
+  }
+  return `${action} failed with status ${result.status}`;
+}
+
+/**
  * Decodes leader receipt result from GenLayer JSON-RPC base64 response.
  */
 export function decodeLeaderReceiptResult(resultInput: any): string {
@@ -418,7 +448,7 @@ export async function registerCitationFlow(
   const result = await monitorTransaction(txHash, onProgress);
 
   if (result.status !== "ACCEPTED") {
-    throw new Error(result.decodedRevert || `Registration failed with status ${result.status}`);
+    throw new Error(formatTxFailureMessage("Registration", result));
   }
 
   // READBACK VERIFICATION: Locate newly registered citation ID strictly matching runner account and inputs
@@ -477,7 +507,7 @@ export async function auditCitationFlow(
   const result = await monitorTransaction(txHash, onProgress);
 
   if (result.status !== "ACCEPTED") {
-    throw new Error(result.decodedRevert || `Audit failed with status ${result.status}`);
+    throw new Error(formatTxFailureMessage("Audit", result));
   }
 
   // READBACK VERIFICATION: Confirm audits_total has incremented
@@ -531,7 +561,7 @@ export async function publishClaimFlow(
   const result = await monitorTransaction(txHash, onProgress);
 
   if (result.status !== "ACCEPTED") {
-    throw new Error(result.decodedRevert || `Publish claim failed with status ${result.status}`);
+    throw new Error(formatTxFailureMessage("Publish claim", result));
   }
 
   // READBACK VERIFICATION: Locate newly published claim strictly matching runner account and inputs
@@ -584,7 +614,7 @@ export async function refreshClaimFlow(
   const result = await monitorTransaction(txHash, onProgress);
 
   if (result.status !== "ACCEPTED") {
-    throw new Error(result.decodedRevert || `Refresh claim failed with status ${result.status}`);
+    throw new Error(formatTxFailureMessage("Refresh claim", result));
   }
 
   // READBACK VERIFICATION: Verify claim record can be fetched

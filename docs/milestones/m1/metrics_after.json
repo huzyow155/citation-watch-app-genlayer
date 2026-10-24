@@ -1,0 +1,83 @@
+{
+  "capturedAt": "2026-10-24T13:45:30.875Z",
+  "targetUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "branch": "milestone/ux-onboarding",
+  "milestone": "Milestone 1 - UX, Onboarding, and Accessibility Overhaul",
+  "routes": [
+    "/",
+    "/workbench",
+    "/app"
+  ],
+  "axeAudits": {
+    "landingDesktop": {
+      "totalViolations": 0,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 0,
+        "serious": 0,
+        "critical": 0
+      },
+      "violations": []
+    },
+    "landingMobile": {
+      "totalViolations": 0,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 0,
+        "serious": 0,
+        "critical": 0
+      },
+      "violations": []
+    },
+    "workbenchDesktop": {
+      "totalViolations": 0,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 0,
+        "serious": 0,
+        "critical": 0
+      },
+      "violations": []
+    },
+    "workbenchMobile": {
+      "totalViolations": 0,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 0,
+        "serious": 0,
+        "critical": 0
+      },
+      "violations": []
+    }
+  },
+  "touchTargets": {
+    "workbenchUnder44px": 1,
+    "workbenchTotal": 18
+  },
+  "mobileOverflowFree": true,
+  "onboarding": {
+    "hasInteractiveGuidedTour": true,
+    "hasWalkthroughModalOrPill": true,
+    "tourStepsCount": 5,
+    "keyboardNavigable": true,
+    "localStoragePersistence": true
+  },
+  "fundingGuide": {
+    "hasDedicatedFundingGuideViewOrModal": true,
+    "hasPreWriteBalanceValidationGuard": true,
+    "writeButtonsWithFundingNotes": 4,
+    "totalWriteButtons": 4,
+    "rpcBalanceCheckSupported": true,
+    "measuredWriteCost": "0 GEN (Studionet Preview)"
+  },
+  "errorHandling": {
+    "hasErrorBoundaryComponent": true,
+    "hasSpecificConsensusDisagreementDetail": true,
+    "skeletonLoadersPresent": true,
+    "emptyStatesInformative": true
+  },
+  "testSuite": {
+    "vitestTestFiles": 7,
+    "vitestTests": 42
+  }
+}

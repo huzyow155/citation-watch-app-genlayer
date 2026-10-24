@@ -1,62 +1,79 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Search,
-  ExternalLink,
-  RotateCcw,
-  Sparkles,
-  ArrowRight,
-  BookOpen,
-  AlertCircle,
-  RefreshCw,
   FileCheck2,
+  ExternalLink,
+  RefreshCw,
+  Search,
+  AlertCircle,
+  Clock,
+  Sparkles,
+  Info,
   CheckCircle2,
+  FileText,
+  HelpCircle,
+  Coins,
 } from "lucide-react";
-import { useWallet } from "../context/WalletContext";
 import {
   SOURCE_DRIFT_LEDGER_ADDRESS,
   CLAIMS_BOARD_ADDRESS,
-  SEEDED_CITATIONS,
   WALLET_DISCLAIMER,
   getExplorerAddressUrl,
   getExplorerTxUrl,
 } from "../config/chain";
-import type { CitationRecord, AuditRecord, ClaimBadgeRecord } from "../lib/outcome";
-import { mapVerdict } from "../lib/outcome";
+import { useWallet } from "../context/WalletContext";
 import {
   getCitation,
   listCitationIds,
-  getClaim,
-  listClaimIds,
   registerCitationFlow,
   auditCitationFlow,
   publishClaimFlow,
   refreshClaimFlow,
-  setLedgerFlow,
+  getClaim,
+  listClaimIds,
   getClaimsLedgerAddress,
   getClaimsOwner,
+  setLedgerFlow,
   getLocalUserCitationIds,
   getLocalUserClaimIds,
+  getAccountBalance,
 } from "../services/contractService";
-import { parseAndValidateWikipediaUrl } from "../lib/urlParser";
+import {
+  mapVerdict,
+  type CitationRecord,
+  type AuditRecord,
+  type ClaimBadgeRecord,
+} from "../lib/outcome";
 import { TxPipelineModal } from "../components/TxPipelineModal";
+import { FundingModal } from "../components/FundingModal";
+import {
+  CitationCardSkeleton,
+  CitationDetailSkeleton,
+  ClaimCardSkeleton,
+} from "../components/SkeletonLoader";
 import type { TxProgress } from "../lib/txLifecycle";
 
-type ActiveTab = "explore" | "detail" | "register" | "audit" | "claims" | "admin" | "evidence";
+// Curated sample citations from verified on-chain evidence runs
+const VERIFIED_SAMPLE_CITATION_IDS = [
+  "fcca1095abb0", // Claude Shannon Information Theory
+  "bbee352df865", // Ada Lovelace
+  "a68c69aa9a4d", // Alan Turing
+  "64032d9d1502", // Computing Hardware
+];
 
 export const Workbench: React.FC = () => {
-  const { account, address } = useWallet();
-  const [activeTab, setActiveTab] = useState<ActiveTab>("explore");
+  const { account, disclaimer } = useWallet();
+  const [activeTab, setActiveTab] = useState<
+    "explore" | "detail" | "register" | "audit" | "claims" | "admin" | "evidence"
+  >("explore");
 
-  // Exploration & Detail state
+  // Selected citation state
   const [selectedCitationId, setSelectedCitationId] = useState<string>("");
-  const [searchCitationId, setSearchCitationId] = useState<string>("");
   const [citationData, setCitationData] = useState<CitationRecord | null>(null);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [detailRpcError, setDetailRpcError] = useState<string | null>(null);
+  const [isCitationLoading, setIsCitationLoading] = useState(false);
+  const [searchCitationId, setSearchCitationId] = useState("");
 
-  // Explore live on-chain state
+  // Explore tab live data
   const [userCitations, setUserCitations] = useState<CitationRecord[]>([]);
-  const [ledgerCitations, setLedgerCitations] = useState<CitationRecord[]>([]);
   const [sampleCitations, setSampleCitations] = useState<CitationRecord[]>([]);
   const [isExploreLoading, setIsExploreLoading] = useState(false);
   const [exploreRpcError, setExploreRpcError] = useState<string | null>(null);
@@ -77,16 +94,18 @@ export const Workbench: React.FC = () => {
   const [claimHeadline, setClaimHeadline] = useState("");
   const [selectedClaimId, setSelectedClaimId] = useState("");
   const [liveClaims, setLiveClaims] = useState<ClaimBadgeRecord[]>([]);
+  const [isClaimsLoading, setIsClaimsLoading] = useState(false);
 
   // Admin state
   const [adminLedgerAddress, setAdminLedgerAddress] = useState<string>(SOURCE_DRIFT_LEDGER_ADDRESS);
   const [currentLinkedLedger, setCurrentLinkedLedger] = useState<string>("");
   const [claimsOwner, setClaimsOwner] = useState<string>("");
 
-  // Consensus pipeline modal state
+  // Modals state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [txProgress, setTxProgress] = useState<TxProgress | null>(null);
+  const [showFundingModal, setShowFundingModal] = useState(false);
 
   // In-memory cache to prevent redundant RPC calls
   const citationCacheRef = useRef<Map<string, CitationRecord>>(new Map());
@@ -110,6 +129,21 @@ export const Workbench: React.FC = () => {
     return c;
   };
 
+  // Pre-write validation guard: validates account presence and queries RPC balance
+  const runPreWriteGuard = async (): Promise<boolean> => {
+    if (!account || !account.address) {
+      alert("No active preview account found. Please open the Wallet modal in the header to generate a throwaway key.");
+      return false;
+    }
+    try {
+      await getAccountBalance(String(account.address));
+      return true;
+    } catch (err) {
+      console.warn("Pre-write balance query warning:", err);
+      return true;
+    }
+  };
+
   // Hydrate Explore tab from chain
   const loadExploreData = async () => {
     setIsExploreLoading(true);
@@ -118,116 +152,97 @@ export const Workbench: React.FC = () => {
       // 1. Hydrate User Citations from localStorage
       const userIds = getLocalUserCitationIds();
       const userRecords: CitationRecord[] = [];
-      for (const uid of userIds.slice(0, 3)) {
+      for (const uid of userIds) {
         try {
           const rec = await fetchCachedCitation(uid);
           if (rec) userRecords.push(rec);
         } catch {
-          // ignore individual missing
+          // ignore individual fetch errors
         }
-        await new Promise((r) => setTimeout(r, 200));
       }
       setUserCitations(userRecords);
 
-      // 2. Hydrate Recent Citations from list_citation_ids
-      const recentIds = await listCitationIds(0, 3);
-      const ledgerRecords: CitationRecord[] = [];
-      for (const rid of recentIds) {
-        try {
-          const rec = await fetchCachedCitation(rid);
-          if (rec) ledgerRecords.push(rec);
-        } catch {
-          // ignore
-        }
-        await new Promise((r) => setTimeout(r, 200));
-      }
-      setLedgerCitations(ledgerRecords);
-
-      // 3. Hydrate Verified Sample Citations (IDs from evidence run)
-      const sampleIds = [
-        "bbee352df865",
-        "4f3305759701",
-        "59a2e370301f",
-      ];
-      const samples: CitationRecord[] = [];
-      for (const sid of sampleIds) {
+      // 2. Hydrate Sample Citations from known verified IDs
+      const sampleRecords: CitationRecord[] = [];
+      for (const sid of VERIFIED_SAMPLE_CITATION_IDS) {
         try {
           const rec = await fetchCachedCitation(sid);
-          if (rec) samples.push(rec);
+          if (rec) sampleRecords.push(rec);
         } catch {
           // ignore
         }
-        await new Promise((r) => setTimeout(r, 200));
       }
-      setSampleCitations(samples);
-
-      // 4. Hydrate Claims
-      const claimIds = await listClaimIds(0, 3);
-      const claimsList: ClaimBadgeRecord[] = [];
-      for (const cid of claimIds) {
-        try {
-          const c = await fetchCachedClaim(cid);
-          if (c) claimsList.push(c);
-        } catch {
-          // ignore
-        }
-        await new Promise((r) => setTimeout(r, 200));
-      }
-      setLiveClaims(claimsList);
+      setSampleCitations(sampleRecords);
     } catch (err: any) {
-      console.error("Explore RPC error:", err);
-      setExploreRpcError(err?.message || "Failed to query GenLayer Studionet RPC. Check connection and retry.");
+      console.error("Explore hydration error:", err);
+      setExploreRpcError(
+        "Could not load live on-chain citations from Studionet RPC. Please check your connection and retry."
+      );
     } finally {
       setIsExploreLoading(false);
     }
   };
 
+  // Initial load
   useEffect(() => {
-    if (activeTab === "explore") {
-      loadExploreData();
-    }
-  }, [activeTab]);
+    loadExploreData();
+  }, []);
 
-  // Fetch Citation Details
-  const loadCitationDetails = async (id: string) => {
-    if (!id) {
-      setCitationData(null);
-      return;
-    }
-    setIsLoadingDetails(true);
-    setDetailRpcError(null);
-    setCitationData(null); // Clear previous citation to prevent rendering stale data
+  // Fetch citation details when selectedCitationId changes
+  const loadCitationDetails = async (cid: string) => {
+    if (!cid.trim()) return;
+    setIsCitationLoading(true);
+    setCitationData(null);
     try {
-      if (citationCacheRef.current.has(id)) {
-        setCitationData(citationCacheRef.current.get(id)!);
+      const data = await getCitation(cid.trim());
+      setCitationData(data);
+      if (data) {
+        citationCacheRef.current.set(cid.trim(), data);
       }
-      let cit = null;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          cit = await getCitation(id);
-          if (cit) {
-            citationCacheRef.current.set(id, cit);
-            break;
-          }
-        } catch (e) {
-          if (attempt === 2) throw e;
-          await new Promise((r) => setTimeout(r, 1500));
-        }
-      }
-      setCitationData(cit);
-    } catch (err: any) {
-      console.error(err);
-      setDetailRpcError(err?.message || "RPC read failure while fetching citation.");
+    } catch (err) {
+      console.error("Failed to fetch citation details:", err);
+      setCitationData(null);
     } finally {
-      setIsLoadingDetails(false);
+      setIsCitationLoading(false);
     }
   };
 
   useEffect(() => {
-    if (selectedCitationId && activeTab === "detail") {
+    if (selectedCitationId) {
       loadCitationDetails(selectedCitationId);
     }
-  }, [selectedCitationId, activeTab]);
+  }, [selectedCitationId]);
+
+  // Load Claims Data
+  const loadClaimsData = async () => {
+    setIsClaimsLoading(true);
+    try {
+      const userClaimIds = getLocalUserClaimIds();
+      const onChainIds = await listClaimIds(0, 10);
+      const allIds = Array.from(new Set([...userClaimIds, ...onChainIds]));
+
+      const loaded: ClaimBadgeRecord[] = [];
+      for (const id of allIds) {
+        try {
+          const c = await fetchCachedClaim(id);
+          if (c) loaded.push(c);
+        } catch {
+          // continue
+        }
+      }
+      setLiveClaims(loaded);
+    } catch (err) {
+      console.warn("Failed to list live claims:", err);
+    } finally {
+      setIsClaimsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "claims") {
+      loadClaimsData();
+    }
+  }, [activeTab]);
 
   // Load Admin Data
   useEffect(() => {
@@ -240,7 +255,7 @@ export const Workbench: React.FC = () => {
   // Handlers for Write Transactions
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!account) return alert("Wallet not connected");
+    if (!(await runPreWriteGuard())) return;
 
     setIsModalOpen(true);
     setModalTitle("Register Citation Baseline");
@@ -267,13 +282,14 @@ export const Workbench: React.FC = () => {
 
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!account) return alert("Wallet not connected");
+    if (!(await runPreWriteGuard())) return;
 
     setIsModalOpen(true);
     setModalTitle("Audit Citation Target");
     try {
       await auditCitationFlow(account, selectedCitationId, auditTargetUrl, setTxProgress);
       loadCitationDetails(selectedCitationId);
+      setActiveTab("detail");
     } catch (err: any) {
       console.error(err);
       setTxProgress((prev) => ({
@@ -286,13 +302,14 @@ export const Workbench: React.FC = () => {
 
   const handlePublishClaim = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!account) return alert("Wallet not connected");
+    if (!(await runPreWriteGuard())) return;
 
     setIsModalOpen(true);
     setModalTitle("Publish Claim on ClaimsBoard");
     try {
       const { claimId } = await publishClaimFlow(account, claimCitationId, claimHeadline, setTxProgress);
       setSelectedClaimId(claimId);
+      loadClaimsData();
     } catch (err: any) {
       console.error(err);
       setTxProgress((prev) => ({
@@ -305,12 +322,13 @@ export const Workbench: React.FC = () => {
 
   const handleRefreshClaim = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!account) return alert("Wallet not connected");
+    if (!(await runPreWriteGuard())) return;
 
     setIsModalOpen(true);
     setModalTitle("Refresh Claim Badge");
     try {
       await refreshClaimFlow(account, selectedClaimId, setTxProgress);
+      loadClaimsData();
     } catch (err: any) {
       console.error(err);
       setTxProgress((prev) => ({
@@ -323,10 +341,10 @@ export const Workbench: React.FC = () => {
 
   const handleSetLedger = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!account) return alert("Wallet not connected");
+    if (!(await runPreWriteGuard())) return;
 
     setIsModalOpen(true);
-    setModalTitle("Admin: Update Linked Ledger");
+    setModalTitle("Update ClaimsBoard Linked Ledger");
     try {
       await setLedgerFlow(account, adminLedgerAddress, setTxProgress);
       getClaimsLedgerAddress().then(setCurrentLinkedLedger).catch(() => {});
@@ -339,12 +357,15 @@ export const Workbench: React.FC = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans text-base">
       {/* Subnav Tabs */}
       <div className="border-b border-slate-800 bg-slate-900/50 px-4 sm:px-6">
-        <div className="mx-auto max-w-7xl flex space-x-1 overflow-x-auto py-2.5">
+        <nav
+          aria-label="Workbench navigation tabs"
+          role="tablist"
+          className="mx-auto max-w-7xl flex space-x-1 overflow-x-auto py-2.5"
+        >
           {(
             [
               { id: "explore", label: "Explore Citations" },
@@ -358,40 +379,48 @@ export const Workbench: React.FC = () => {
           ).map((tab) => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
+              className={`min-h-[44px] rounded-xl px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                 activeTab === tab.id
-                  ? "bg-cyan-600 text-white"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                  ? "bg-cyan-500 text-slate-950 font-bold"
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
               }`}
             >
               {tab.label}
             </button>
           ))}
-        </div>
+        </nav>
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 mx-auto max-w-7xl w-full p-4 sm:p-6 lg:p-8">
         {/* TAB 1: EXPLORE */}
         {activeTab === "explore" && (
-          <div className="space-y-8">
+          <section aria-labelledby="explore-citations-title" className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-white">Explore On-Chain Citations</h2>
-                <p className="text-sm text-slate-400 mt-1">
+                <h1 id="explore-citations-title" className="text-2xl font-bold text-white">
+                  Explore On-Chain Citations
+                </h1>
+                <p className="text-sm text-slate-300 mt-1">
                   Live state hydrated directly from SourceDriftLedger and ClaimsBoard on GenLayer Studionet (Preview).
                 </p>
               </div>
 
               {/* Direct ID Search & Refresh */}
-              <div className="flex space-x-2">
+              <div className="flex items-center space-x-2">
+                <label htmlFor="search-citation-input" className="sr-only">
+                  Paste 12-char Citation ID
+                </label>
                 <input
+                  id="search-citation-input"
                   type="text"
                   placeholder="Paste 12-char Citation ID..."
                   value={searchCitationId}
                   onChange={(e) => setSearchCitationId(e.target.value)}
-                  className="rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-2 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none w-56 sm:w-64"
+                  className="min-h-[44px] rounded-xl border border-slate-700 bg-slate-900 px-3.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 w-56 sm:w-64"
                 />
                 <button
                   type="button"
@@ -401,7 +430,7 @@ export const Workbench: React.FC = () => {
                       setActiveTab("detail");
                     }
                   }}
-                  className="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white hover:bg-cyan-500"
+                  className="min-h-[44px] rounded-xl bg-cyan-500 px-4 text-sm font-bold text-slate-950 hover:bg-cyan-400 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                 >
                   Inspect
                 </button>
@@ -409,29 +438,29 @@ export const Workbench: React.FC = () => {
                   type="button"
                   onClick={loadExploreData}
                   disabled={isExploreLoading}
-                  className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-300 hover:text-white"
-                  title="Reload from chain"
+                  aria-label="Reload citations from chain"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900 text-slate-200 hover:text-white hover:border-slate-500 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400"
                 >
-                  <RefreshCw className={`h-4 w-4 ${isExploreLoading ? "animate-spin" : ""}`} />
+                  <RefreshCw className={`h-4 w-4 ${isExploreLoading ? "animate-spin" : ""}`} aria-hidden="true" />
                 </button>
               </div>
             </div>
 
             {/* RPC Error State with Retry Button */}
             {exploreRpcError && (
-              <div className="rounded-xl border border-rose-800 bg-rose-950/60 p-5 text-rose-200">
+              <div className="rounded-2xl border border-rose-800 bg-rose-950/60 p-5 text-rose-200">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
-                    <AlertCircle className="h-5 w-5 text-rose-400 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="h-5 w-5 text-rose-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
                     <div>
-                      <p className="font-semibold text-rose-300">RPC Communication Error</p>
+                      <p className="font-bold text-rose-300">RPC Communication Error</p>
                       <p className="text-sm text-rose-200 mt-1">{exploreRpcError}</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={loadExploreData}
-                    className="rounded-lg bg-rose-800 px-4 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 ml-4 flex-shrink-0"
+                    className="min-h-[44px] rounded-xl bg-rose-800 px-4 text-xs font-bold text-white hover:bg-rose-700 ml-4 flex-shrink-0 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                   >
                     Retry
                   </button>
@@ -439,32 +468,43 @@ export const Workbench: React.FC = () => {
               </div>
             )}
 
+            {/* Skeletons while loading */}
+            {isExploreLoading && (
+              <div className="space-y-4">
+                <p className="text-xs text-slate-300">Querying active contracts on GenLayer Studionet (Preview)...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <CitationCardSkeleton />
+                  <CitationCardSkeleton />
+                  <CitationCardSkeleton />
+                </div>
+              </div>
+            )}
+
             {/* Section 1: User Citations in this browser session */}
-            {userCitations.length > 0 && (
+            {!isExploreLoading && userCitations.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <h3 className="text-lg font-bold text-white">Your citations (Local Session)</h3>
-                  <span className="rounded-full bg-cyan-900/60 text-cyan-300 text-xs px-2 py-0.5 font-mono">
+                  <span className="rounded-full bg-cyan-900/60 text-cyan-300 text-xs px-2.5 py-0.5 font-mono font-bold">
                     {userCitations.length}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {userCitations.map((c) => {
-                    const verdict = mapVerdict(c.audits?.[c.latest_audit_index]?.class || c.status);
                     return (
                       <div
                         key={c.citation_id}
-                        className="rounded-xl border border-cyan-700/60 bg-slate-900/80 p-5 flex flex-col justify-between hover:border-cyan-500 transition-all"
+                        className="rounded-2xl border border-cyan-700/60 bg-slate-900/80 p-5 flex flex-col justify-between hover:border-cyan-500 transition-all"
                       >
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
+                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                               {c.status}
                             </span>
-                            <span className="text-xs text-slate-400">{c.audits_total} audits</span>
+                            <span className="text-xs text-slate-300 font-semibold">{c.audits_total} audits</span>
                           </div>
                           <h4 className="text-base font-bold text-white mb-1">{c.label}</h4>
-                          <p className="text-xs text-slate-400 mb-2">{c.baseline_title} (rev {c.baseline_oldid})</p>
+                          <p className="text-xs text-slate-300 mb-2">{c.baseline_title} (rev {c.baseline_oldid})</p>
                           <p className="font-mono text-xs text-cyan-400 break-all">{c.citation_id}</p>
                         </div>
                         <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
@@ -474,9 +514,9 @@ export const Workbench: React.FC = () => {
                               setSelectedCitationId(c.citation_id);
                               setActiveTab("detail");
                             }}
-                            className="text-xs font-semibold text-cyan-400 hover:underline inline-flex items-center space-x-1"
+                            className="min-h-[44px] text-xs font-bold text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center space-x-1 focus-visible:ring-2 focus-visible:ring-cyan-400"
                           >
-                            <span>Inspect &rarr;</span>
+                            <span>Inspect Details &rarr;</span>
                           </button>
                         </div>
                       </div>
@@ -486,172 +526,142 @@ export const Workbench: React.FC = () => {
               </div>
             )}
 
-            {/* Section 2: Verified Sample Citations (IDs from our evidence run) */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <h3 className="text-lg font-bold text-white">Verified sample citations (IDs from our evidence run)</h3>
-                <span className="text-xs text-slate-400">Live hydrated</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sampleCitations.map((c) => {
-                  const latestAudit = c.audits?.[c.latest_audit_index];
-                  const verdict = mapVerdict(latestAudit?.class || c.status);
-                  return (
-                    <div
-                      key={c.citation_id}
-                      className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col justify-between hover:border-slate-700 transition-all"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span
-                            className={`text-xs font-bold px-2 py-0.5 rounded ${
-                              verdict.verdictClass === "UNCHANGED" || verdict.verdictClass === "SAME"
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : verdict.verdictClass === "COSMETIC"
-                                ? "bg-cyan-500/10 text-cyan-400"
-                                : verdict.verdictClass === "MATERIAL"
-                                ? "bg-amber-500/10 text-amber-400"
-                                : "bg-purple-500/10 text-purple-400"
-                            }`}
-                          >
-                            {c.status}
-                          </span>
-                          <span className="text-xs text-slate-400">{c.audits_total} audits</span>
-                        </div>
-                        <h4 className="text-base font-bold text-white mb-1">{c.label}</h4>
-                        <p className="text-xs text-slate-400 mb-2">{c.baseline_title} (rev {c.baseline_oldid})</p>
-                        <p className="font-mono text-xs text-slate-400 break-all">{c.citation_id}</p>
-                      </div>
-
-                      <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
-                        <span className="text-[11px] text-slate-500">{verdict.honestyNote}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedCitationId(c.citation_id);
-                            setActiveTab("detail");
-                          }}
-                          className="text-xs font-semibold text-cyan-400 hover:underline"
-                        >
-                          Inspect &rarr;
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Section 3: Recent Citations on Ledger */}
-            {ledgerCitations.length > 0 && (
+            {/* Section 2: Verified Sample Citations */}
+            {!isExploreLoading && (
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">Recent Citations on Ledger</h3>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      Verified sample citations (IDs from our evidence run)
+                    </h3>
+                    <p className="text-xs text-slate-300">
+                      Each card is hydrated live from SourceDriftLedger on Studionet.
+                    </p>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {ledgerCitations.map((c) => (
-                    <div
-                      key={c.citation_id}
-                      className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between text-xs mb-1.5">
-                          <span className="font-semibold text-cyan-300">{c.label}</span>
-                          <span className="text-slate-400">{c.status}</span>
+                  {sampleCitations.map((c) => {
+                    return (
+                      <div
+                        key={c.citation_id}
+                        className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 flex flex-col justify-between hover:border-slate-700 transition-all"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                              {c.status}
+                            </span>
+                            <span className="text-xs text-slate-300 font-semibold">{c.audits_total} audits</span>
+                          </div>
+                          <h4 className="text-base font-bold text-white mb-1">{c.label}</h4>
+                          <p className="text-xs text-slate-300 mb-2">{c.baseline_title} (rev {c.baseline_oldid})</p>
+                          <p className="font-mono text-xs text-cyan-400 break-all">{c.citation_id}</p>
                         </div>
-                        <p className="text-xs text-slate-400">{c.baseline_title}</p>
-                        <p className="font-mono text-xs text-slate-500 mt-1">{c.citation_id}</p>
+                        <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCitationId(c.citation_id);
+                              setActiveTab("detail");
+                            }}
+                            className="min-h-[44px] text-xs font-bold text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center space-x-1 focus-visible:ring-2 focus-visible:ring-cyan-400"
+                          >
+                            <span>Inspect Details &rarr;</span>
+                          </button>
+                        </div>
                       </div>
-                      <div className="mt-3 flex justify-end">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedCitationId(c.citation_id);
-                            setActiveTab("detail");
-                          }}
-                          className="text-xs font-semibold text-cyan-400 hover:underline"
-                        >
-                          View &rarr;
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {/* TAB 2: CITATION DETAIL */}
         {activeTab === "detail" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
+          <section aria-labelledby="citation-detail-title" className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-white">Citation Audit Detail</h2>
-                <p className="text-sm text-slate-400 font-mono mt-1 break-all">ID: {selectedCitationId}</p>
+                <h1 id="citation-detail-title" className="text-2xl font-bold text-white">
+                  Citation Baseline &amp; Drift History
+                </h1>
+                <p className="text-sm text-slate-300 mt-1">
+                  On-chain immutable baseline records and sequential validator drift audits.
+                </p>
               </div>
-              <button
-                type="button"
-                onClick={() => loadCitationDetails(selectedCitationId)}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs text-slate-300 hover:text-white"
-              >
-                Refresh
-              </button>
-            </div>
 
-            {/* RPC Error for Details */}
-            {detailRpcError && (
-              <div className="rounded-xl border border-rose-800 bg-rose-950/60 p-4 text-rose-200 flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-rose-300">RPC Error</p>
-                  <p className="text-xs text-rose-200 mt-1">{detailRpcError}</p>
-                </div>
+              {/* Selector */}
+              <div className="flex items-center space-x-2">
+                <label htmlFor="detail-citation-id-input" className="sr-only">
+                  Citation ID
+                </label>
+                <input
+                  id="detail-citation-id-input"
+                  type="text"
+                  value={selectedCitationId}
+                  onChange={(e) => setSelectedCitationId(e.target.value)}
+                  placeholder="12-char Citation ID"
+                  className="min-h-[44px] rounded-xl border border-slate-700 bg-slate-900 px-3.5 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 w-44"
+                />
                 <button
                   type="button"
                   onClick={() => loadCitationDetails(selectedCitationId)}
-                  className="rounded-lg bg-rose-800 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-700 ml-4"
+                  disabled={isCitationLoading}
+                  className="min-h-[44px] rounded-xl bg-slate-800 px-3 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400"
                 >
-                  Retry
+                  Load
                 </button>
               </div>
-            )}
+            </div>
 
-            {isLoadingDetails ? (
-              <div className="p-8 text-center text-sm text-slate-400">Loading on-chain ledger state...</div>
+            {/* Loading Skeleton */}
+            {isCitationLoading ? (
+              <CitationDetailSkeleton />
             ) : citationData ? (
               <div className="space-y-6">
-                {/* Meta Card */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-                  <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-4">
-                    Registered Baseline Metadata
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                {/* Main Card */}
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <span className="text-slate-500 block text-xs">Label</span>
-                      <span className="font-semibold text-white">{citationData.label}</span>
+                      <span className="text-xs font-mono text-cyan-400 font-bold block mb-1">
+                        ID: {citationData.citation_id}
+                      </span>
+                      <h3 className="text-xl font-bold text-white">{citationData.label}</h3>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800">
+                        Status: {citationData.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-800 text-xs">
                     <div>
-                      <span className="text-slate-500 block text-xs">Article Title</span>
+                      <span className="text-slate-300 font-semibold block mb-1">Wikipedia Article:</span>
                       <span className="font-semibold text-white">{citationData.baseline_title}</span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block text-xs">Baseline Oldid</span>
-                      <span className="font-mono text-slate-300">{citationData.baseline_oldid}</span>
+                      <span className="text-slate-300 font-semibold block mb-1">Baseline Revision:</span>
+                      <span className="font-mono text-slate-200 font-semibold">{citationData.baseline_oldid}</span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block text-xs">Status</span>
-                      <span className="font-bold text-emerald-400">{citationData.status}</span>
+                      <span className="text-slate-300 font-semibold block mb-1">Total Audits:</span>
+                      <span className="font-semibold text-white">{citationData.audits_total}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-300 font-semibold block mb-1">Registrant:</span>
+                      <span className="font-mono text-slate-200 font-semibold break-all">{citationData.registrant}</span>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-800 text-xs">
-                    <span className="text-slate-500 block mb-1">Registrant Address (identity not verified):</span>
-                    <span className="font-mono text-slate-300">{citationData.registrant}</span>
+                  <div className="pt-2 text-xs">
+                    <span className="text-slate-300 font-semibold block mb-1">Baseline SHA-256 Fingerprint:</span>
+                    <span className="font-mono text-slate-300 break-all">{citationData.baseline_text_sha256}</span>
                   </div>
                   <div className="mt-2 text-xs">
-                    <span className="text-slate-500 block mb-1">Baseline SHA-256 Fingerprint:</span>
-                    <span className="font-mono text-slate-400 break-all">{citationData.baseline_text_sha256}</span>
-                  </div>
-                  <div className="mt-2 text-xs">
-                    <span className="text-slate-500 block mb-1">Baseline URL:</span>
+                    <span className="text-slate-300 font-semibold block mb-1">Baseline URL:</span>
                     <a
                       href={citationData.baseline_url}
                       target="_blank"
@@ -665,13 +675,13 @@ export const Workbench: React.FC = () => {
 
                 {/* Claim Elements */}
                 <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-                  <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-3">
+                  <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-3">
                     Registered Claim Quotes
                   </h3>
                   <div className="space-y-3">
                     {citationData.elements?.map((elem, idx) => (
                       <div key={idx} className="rounded-xl bg-slate-950 p-4 text-sm text-slate-200 border border-slate-800">
-                        <span className="text-slate-500 mr-2 text-xs font-mono">[{elem.id}]</span>
+                        <span className="text-slate-300 mr-2 text-xs font-mono font-bold">[{elem.id}]</span>
                         <span className="italic font-serif">&ldquo;{elem.quote}&rdquo;</span>
                       </div>
                     ))}
@@ -680,7 +690,7 @@ export const Workbench: React.FC = () => {
 
                 {/* Audit History */}
                 <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
-                  <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider">
+                  <h3 className="text-sm font-bold text-cyan-400 uppercase tracking-wider">
                     Recorded Audits ({citationData.audits?.length || 0})
                   </h3>
 
@@ -697,12 +707,12 @@ export const Workbench: React.FC = () => {
                                   {a.class}
                                 </span>
                               </div>
-                              <span className="text-xs text-slate-400 font-mono">
+                              <span className="text-xs text-slate-300 font-mono font-semibold">
                                 {a.target_kind} {a.target_oldid ? `(oldid ${a.target_oldid})` : "(LIVE)"}
                               </span>
                             </div>
 
-                            <p className="text-xs text-slate-400">{verdict.explanation}</p>
+                            <p className="text-xs text-slate-300 leading-relaxed">{verdict.explanation}</p>
 
                             {/* Elements in Audit */}
                             {a.elements && a.elements.length > 0 && (
@@ -710,8 +720,8 @@ export const Workbench: React.FC = () => {
                                 {a.elements.map((el, elIdx) => (
                                   <div key={elIdx} className="rounded-lg bg-slate-900 p-3 text-xs space-y-1">
                                     <div className="flex items-center justify-between">
-                                      <span className="text-slate-400 font-mono">Element {el.id}</span>
-                                      <span className="font-semibold text-cyan-300">Status: {el.status}</span>
+                                      <span className="text-slate-300 font-mono font-semibold">Element {el.id}</span>
+                                      <span className="font-bold text-cyan-300">Status: {el.status}</span>
                                     </div>
                                     {el.cited_quote && (
                                       <p className="text-emerald-300 text-xs italic bg-emerald-950/20 p-2 rounded border border-emerald-900/40">
@@ -727,64 +737,110 @@ export const Workbench: React.FC = () => {
                       })}
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-500">No audits recorded yet for this citation.</p>
+                    <div className="rounded-xl border border-dashed border-slate-800 p-6 text-center space-y-2">
+                      <p className="text-xs text-slate-300 font-medium">No audits recorded yet for this citation.</p>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("audit")}
+                        className="min-h-[44px] px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-colors"
+                      >
+                        Run Drift Audit on this Citation
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-8 text-center text-sm text-slate-400">
-                Citation record not found on-chain. Please verify the 12-character ID.
+              /* Informative Empty State */
+              <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8 text-center space-y-4">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-cyan-400">
+                  <FileText className="h-6 w-6" aria-hidden="true" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white">No Citation Selected</h3>
+                  <p className="text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
+                    Select a verified sample citation from Explore or register a new Wikipedia citation baseline to inspect quotes, sha256 fingerprints, and validator audit history.
+                  </p>
+                </div>
+                <div className="flex flex-wrap justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("explore")}
+                    className="min-h-[44px] px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  >
+                    Browse Explore Citations
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("register")}
+                    className="min-h-[44px] px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-colors focus-visible:ring-2 focus-visible:ring-white"
+                  >
+                    Register New Baseline
+                  </button>
+                </div>
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {/* TAB 3: REGISTER */}
         {activeTab === "register" && (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <section aria-labelledby="register-citation-title" className="max-w-2xl mx-auto space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-white">Register New Citation Baseline</h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <h1 id="register-citation-title" className="text-2xl font-bold text-white">
+                Register New Citation Baseline
+              </h1>
+              <p className="text-sm text-slate-300 mt-1 leading-relaxed">
                 Submits a Wikipedia article revision permalink and extracted verbatim claim quotes for validator consensus.
               </p>
             </div>
 
             <form onSubmit={handleRegister} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5">
               <div>
-                <label className="text-sm text-slate-300 block mb-1">Citation Label / Title</label>
+                <label htmlFor="reg-label-input" className="text-sm text-slate-200 font-semibold block mb-1.5">
+                  Citation Label
+                </label>
                 <input
+                  id="reg-label-input"
                   type="text"
                   value={regLabel}
                   onChange={(e) => setRegLabel(e.target.value)}
                   placeholder="e.g. Ada Lovelace Mathematical Eminence"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-sm text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm text-slate-300 block mb-1">Baseline Wikipedia Revision Permalink</label>
+                <label htmlFor="reg-url-input" className="text-sm text-slate-200 font-semibold block mb-1.5">
+                  Wikipedia Baseline Revision Permalink
+                </label>
                 <input
+                  id="reg-url-input"
                   type="text"
                   value={regUrl}
                   onChange={(e) => setRegUrl(e.target.value)}
                   placeholder="https://en.wikipedia.org/w/index.php?title=...&oldid=..."
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
-                <p className="text-xs text-slate-500 mt-1">Must contain both title and oldid query parameters.</p>
+                <p className="text-xs text-slate-300 mt-1.5">
+                  Must be an en.wikipedia.org permalink containing the explicit baseline `oldid` query parameter.
+                </p>
               </div>
 
               <div>
-                <label className="text-sm text-slate-300 block mb-1">Verbatim Claim Quotes (1 to 4 sentences)</label>
+                <label className="text-sm text-slate-200 font-semibold block mb-1.5">
+                  Verbatim Quotation Elements ({regQuotes.length})
+                </label>
                 <div className="space-y-2 mb-3">
-                  {regQuotes.map((q, i) => (
-                    <div key={i} className="flex items-start justify-between rounded-xl bg-slate-950 p-3 text-xs border border-slate-800">
-                      <span className="text-slate-200 font-serif leading-relaxed italic">&ldquo;{q}&rdquo;</span>
+                  {regQuotes.map((q, idx) => (
+                    <div key={idx} className="flex items-center justify-between rounded-xl bg-slate-950 p-3 border border-slate-800">
+                      <p className="text-xs text-slate-200 italic mr-2">&ldquo;{q}&rdquo;</p>
                       <button
                         type="button"
-                        onClick={() => setRegQuotes(regQuotes.filter((_, idx) => idx !== i))}
-                        className="text-rose-400 hover:text-rose-300 text-xs ml-3 flex-shrink-0"
+                        onClick={() => setRegQuotes(regQuotes.filter((_, i) => i !== idx))}
+                        className="min-h-[44px] text-xs font-semibold text-rose-400 hover:text-rose-300 px-2"
                       >
                         Remove
                       </button>
@@ -792,14 +848,18 @@ export const Workbench: React.FC = () => {
                   ))}
                 </div>
 
-                {regQuotes.length < 4 && (
+                {regQuotes.length < 3 && (
                   <div className="flex space-x-2">
+                    <label htmlFor="add-quote-input" className="sr-only">
+                      Add additional quote
+                    </label>
                     <input
+                      id="add-quote-input"
                       type="text"
-                      placeholder="Add verbatim sentence from baseline article..."
+                      placeholder="Add verbatim sentence from baseline..."
                       value={newQuoteText}
                       onChange={(e) => setNewQuoteText(e.target.value)}
-                      className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                      className="min-h-[44px] flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-xs text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                     />
                     <button
                       type="button"
@@ -809,7 +869,7 @@ export const Workbench: React.FC = () => {
                           setNewQuoteText("");
                         }
                       }}
-                      className="rounded-xl bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-700"
+                      className="min-h-[44px] rounded-xl bg-slate-800 px-4 text-xs font-bold text-slate-200 hover:bg-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-cyan-400"
                     >
                       Add Quote
                     </button>
@@ -817,112 +877,164 @@ export const Workbench: React.FC = () => {
                 )}
               </div>
 
+              {/* Inline Funding Callout and Submit */}
               <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-[11px] text-amber-300 font-medium">
-                  {WALLET_DISCLAIMER}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-amber-300 font-semibold">{WALLET_DISCLAIMER}</p>
+                  <div className="flex items-center space-x-2 text-xs text-slate-300">
+                    <span>Studionet (Preview) &middot; Gas: 0 GEN &middot; Consensus evaluated</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowFundingModal(true)}
+                      className="inline-flex min-h-[44px] items-center text-cyan-400 hover:text-cyan-300 hover:underline font-bold focus-visible:ring-2 focus-visible:ring-cyan-400"
+                    >
+                      [Gas &amp; Funds Guide]
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="submit"
-                  className="rounded-xl bg-cyan-600 px-6 py-3 text-sm font-bold text-white hover:bg-cyan-500 shadow-lg shadow-cyan-600/30"
+                  className="min-h-[44px] rounded-xl bg-cyan-500 px-6 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                 >
                   Submit Registration
                 </button>
               </div>
             </form>
-          </div>
+          </section>
         )}
 
         {/* TAB 4: AUDIT */}
         {activeTab === "audit" && (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <section aria-labelledby="drift-audit-title" className="max-w-2xl mx-auto space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-white">Execute Citation Drift Audit</h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <h1 id="drift-audit-title" className="text-2xl font-bold text-white">
+                Execute Citation Drift Audit
+              </h1>
+              <p className="text-sm text-slate-300 mt-1 leading-relaxed">
                 Audit a registered baseline against a later revision permalink or the current LIVE Wikipedia page.
               </p>
             </div>
 
             <form onSubmit={handleAudit} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5">
               <div>
-                <label className="text-sm text-slate-300 block mb-1">Target Citation ID</label>
+                <label htmlFor="audit-citation-id-input" className="text-sm text-slate-200 font-semibold block mb-1.5">
+                  Target Citation ID
+                </label>
                 <input
+                  id="audit-citation-id-input"
                   type="text"
                   value={selectedCitationId}
                   onChange={(e) => setSelectedCitationId(e.target.value)}
                   placeholder="12-char Citation ID (e.g. bbee352df865)"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm text-slate-300 block mb-1">Target URL</label>
+                <label htmlFor="audit-target-url-input" className="text-sm text-slate-200 font-semibold block mb-1.5">
+                  Target URL
+                </label>
                 <input
+                  id="audit-target-url-input"
                   type="text"
                   value={auditTargetUrl}
                   onChange={(e) => setAuditTargetUrl(e.target.value)}
                   placeholder="https://en.wikipedia.org/w/index.php?title=...&oldid=... or /wiki/Title"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-sm font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
                   Revision permalink or clean LIVE page path. Note: 300s cooldown applies to LIVE page audits.
                 </p>
               </div>
 
+              {/* Inline Funding Callout and Submit */}
               <div className="pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <p className="text-[11px] text-amber-300 font-medium">
-                  {WALLET_DISCLAIMER}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-amber-300 font-semibold">{WALLET_DISCLAIMER}</p>
+                  <div className="flex items-center space-x-2 text-xs text-slate-300">
+                    <span>Studionet (Preview) &middot; Gas: 0 GEN &middot; Consensus evaluated</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowFundingModal(true)}
+                      className="inline-flex min-h-[44px] items-center text-cyan-400 hover:text-cyan-300 hover:underline font-bold focus-visible:ring-2 focus-visible:ring-cyan-400"
+                    >
+                      [Gas &amp; Funds Guide]
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="submit"
-                  className="rounded-xl bg-cyan-600 px-6 py-3 text-sm font-bold text-white hover:bg-cyan-500 shadow-lg shadow-cyan-600/30"
+                  className="min-h-[44px] rounded-xl bg-cyan-500 px-6 py-2.5 text-sm font-bold text-slate-950 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                 >
                   Execute Audit Transaction
                 </button>
               </div>
             </form>
-          </div>
+          </section>
         )}
 
         {/* TAB 5: CLAIMS BOARD */}
         {activeTab === "claims" && (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <section aria-labelledby="claims-board-title" className="max-w-2xl mx-auto space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-white">ClaimsBoard Cross-Contract Integration</h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <h1 id="claims-board-title" className="text-2xl font-bold text-white">
+                ClaimsBoard Cross-Contract Integration
+              </h1>
+              <p className="text-sm text-slate-300 mt-1 leading-relaxed">
                 Proves cross-contract reuse: external dApps publish assertions bound to citations and synchronize live drift badges.
               </p>
             </div>
 
             {/* Publish Form */}
             <form onSubmit={handlePublishClaim} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-cyan-400">Publish New Assertion</h3>
+              <h3 className="text-base font-bold text-cyan-400">Publish New Assertion</h3>
               <div>
-                <label className="text-xs text-slate-300 block mb-1">Referenced Citation ID</label>
+                <label htmlFor="claim-citation-id-input" className="text-xs text-slate-200 font-semibold block mb-1">
+                  Referenced Citation ID
+                </label>
                 <input
+                  id="claim-citation-id-input"
                   type="text"
                   value={claimCitationId}
                   onChange={(e) => setClaimCitationId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
               </div>
               <div>
-                <label className="text-xs text-slate-300 block mb-1">Claim Headline (10 to 140 chars)</label>
+                <label htmlFor="claim-headline-input" className="text-xs text-slate-200 font-semibold block mb-1">
+                  Claim Headline (10 to 140 chars)
+                </label>
                 <textarea
+                  id="claim-headline-input"
                   rows={2}
                   value={claimHeadline}
                   onChange={(e) => setClaimHeadline(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
               </div>
+
+              {/* Inline Funding Callout and Submit */}
               <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <p className="text-[11px] text-amber-300 font-medium">{WALLET_DISCLAIMER}</p>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-amber-300 font-semibold">{WALLET_DISCLAIMER}</p>
+                  <div className="flex items-center space-x-2 text-xs text-slate-300">
+                    <span>Gas: 0 GEN &middot; Consensus evaluated</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowFundingModal(true)}
+                      className="inline-flex min-h-[44px] items-center text-cyan-400 hover:underline font-bold focus-visible:ring-2 focus-visible:ring-cyan-400"
+                    >
+                      [Gas Guide]
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="submit"
-                  className="rounded-xl bg-cyan-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-cyan-500"
+                  className="min-h-[44px] rounded-xl bg-cyan-500 px-5 text-xs font-bold text-slate-950 hover:bg-cyan-400 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                 >
                   Publish Assertion
                 </button>
@@ -931,25 +1043,42 @@ export const Workbench: React.FC = () => {
 
             {/* Refresh Claim Badge */}
             <form onSubmit={handleRefreshClaim} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-cyan-400">Refresh Claim Badge</h3>
-              <p className="text-xs text-slate-400">
+              <h3 className="text-base font-bold text-cyan-400">Refresh Claim Badge</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
                 Calls `refresh_claim` on ClaimsBoard to query SourceDriftLedger and update the badge status.
               </p>
               <div>
-                <label className="text-xs text-slate-300 block mb-1">Claim ID</label>
+                <label htmlFor="refresh-claim-id-input" className="text-xs text-slate-200 font-semibold block mb-1">
+                  Claim ID
+                </label>
                 <input
+                  id="refresh-claim-id-input"
                   type="text"
                   value={selectedClaimId}
                   onChange={(e) => setSelectedClaimId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
               </div>
+
+              {/* Inline Funding Callout and Submit */}
               <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <p className="text-[11px] text-amber-300 font-medium">{WALLET_DISCLAIMER}</p>
+                <div className="space-y-1">
+                  <p className="text-[11px] text-amber-300 font-semibold">{WALLET_DISCLAIMER}</p>
+                  <div className="flex items-center space-x-2 text-xs text-slate-300">
+                    <span>Gas: 0 GEN &middot; Consensus evaluated</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowFundingModal(true)}
+                      className="inline-flex min-h-[44px] items-center text-cyan-400 hover:underline font-bold focus-visible:ring-2 focus-visible:ring-cyan-400"
+                    >
+                      [Gas Guide]
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="submit"
-                  className="rounded-xl bg-cyan-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-cyan-500"
+                  className="min-h-[44px] rounded-xl bg-cyan-500 px-5 text-xs font-bold text-slate-950 hover:bg-cyan-400 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                 >
                   Refresh Badge
                 </button>
@@ -957,83 +1086,119 @@ export const Workbench: React.FC = () => {
             </form>
 
             {/* Live Claims on Board */}
-            {liveClaims.length > 0 && (
+            {isClaimsLoading ? (
               <div className="space-y-3">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">
-                  Live Claims on ClaimsBoard
+                <ClaimCardSkeleton />
+                <ClaimCardSkeleton />
+              </div>
+            ) : liveClaims.length > 0 ? (
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider">
+                  Active Assertions on Board ({liveClaims.length})
                 </h3>
-                <div className="space-y-3">
-                  {liveClaims.map((cl) => (
-                    <div key={cl.id} className="rounded-xl bg-slate-900 p-4 border border-slate-800 text-xs space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-cyan-400">Claim {cl.id}</span>
-                        <span className="rounded px-2 py-0.5 font-bold bg-slate-800 text-emerald-400 border border-slate-700">
-                          {cl.badge}
-                        </span>
-                      </div>
-                      <p className="text-white font-medium">{cl.headline}</p>
-                      <p className="text-slate-400 font-mono">Bound to Citation: {cl.citation_id}</p>
+                {liveClaims.map((claim) => (
+                  <div
+                    key={claim.id}
+                    className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 space-y-2 hover:border-slate-700 transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs text-cyan-400 font-bold">{claim.id}</span>
+                      <span
+                        className={`text-xs px-2.5 py-0.5 rounded font-bold uppercase ${
+                          claim.badge === "VERIFIED"
+                            ? "bg-emerald-950 text-emerald-300 border border-emerald-800"
+                            : claim.badge === "DRIFTED"
+                            ? "bg-amber-950 text-amber-300 border border-amber-800"
+                            : "bg-rose-950 text-rose-300 border border-rose-800"
+                        }`}
+                      >
+                        {claim.badge}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-sm font-semibold text-white">&ldquo;{claim.headline}&rdquo;</p>
+                    <div className="flex flex-wrap items-center justify-between text-xs text-slate-300 pt-2 border-t border-slate-800">
+                      <span>Citation: <code className="font-mono text-cyan-300">{claim.citation_id}</code></span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedClaimId(claim.id);
+                        }}
+                        className="min-h-[44px] text-xs font-bold text-cyan-400 hover:underline"
+                      >
+                        Select for Refresh
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-slate-800 p-6 text-center space-y-2">
+                <p className="text-xs text-slate-300 font-medium">No claims published yet on the board.</p>
+                <p className="text-xs text-slate-400">Assert a verifiable factual claim using the form above.</p>
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {/* TAB 6: ADMIN */}
         {activeTab === "admin" && (
-          <div className="max-w-2xl mx-auto space-y-6">
+          <section aria-labelledby="admin-title" className="max-w-2xl mx-auto space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-white">ClaimsBoard Administration</h2>
-              <p className="text-sm text-slate-400 mt-1">
-                Inspect contract ownership and configuration of the linked SourceDriftLedger contract address via `set_ledger`.
+              <h1 id="admin-title" className="text-2xl font-bold text-white">
+                ClaimsBoard Administration
+              </h1>
+              <p className="text-sm text-slate-300 mt-1 leading-relaxed">
+                Configure the linked SourceDriftLedger address on the ClaimsBoard contract.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-5">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 space-y-4">
+              <h3 className="text-base font-bold text-cyan-400">Contract Configuration</h3>
               <div className="space-y-3 text-xs">
                 <div>
-                  <span className="text-slate-500 block">ClaimsBoard Contract Owner:</span>
+                  <span className="text-slate-300 font-semibold block">ClaimsBoard Owner:</span>
                   <span className="font-mono text-slate-200 break-all">{claimsOwner || "Loading..."}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Currently Configured Ledger Address:</span>
+                  <span className="text-slate-300 font-semibold block">Currently Configured Ledger Address:</span>
                   <span className="font-mono text-cyan-300 break-all">{currentLinkedLedger || "Loading..."}</span>
                 </div>
               </div>
 
               <form onSubmit={handleSetLedger} className="mt-4 pt-4 border-t border-slate-800 space-y-4">
-                <label className="text-xs text-slate-300 block">
-                  Update Linked Ledger (`set_ledger`) — Owner Only
+                <label htmlFor="admin-ledger-input" className="text-xs text-slate-200 font-semibold block">
+                  Update Linked Ledger (`set_ledger`) - Owner Only
                 </label>
                 <input
+                  id="admin-ledger-input"
                   type="text"
                   value={adminLedgerAddress}
                   onChange={(e) => setAdminLedgerAddress(e.target.value)}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none"
+                  className="min-h-[44px] w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 text-xs font-mono text-white focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   required
                 />
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <p className="text-[11px] text-amber-300 font-medium">{WALLET_DISCLAIMER}</p>
+                  <p className="text-[11px] text-amber-300 font-semibold">{WALLET_DISCLAIMER}</p>
                   <button
                     type="submit"
-                    className="rounded-xl bg-cyan-600 px-5 py-2 text-xs font-bold text-white hover:bg-cyan-500"
+                    className="min-h-[44px] rounded-xl bg-cyan-500 px-5 text-xs font-bold text-slate-950 hover:bg-cyan-400 transition-colors focus-visible:ring-2 focus-visible:ring-white"
                   >
                     Execute set_ledger
                   </button>
                 </div>
               </form>
             </div>
-          </div>
+          </section>
         )}
 
         {/* TAB 7: EVIDENCE */}
         {activeTab === "evidence" && (
-          <div className="space-y-6">
+          <section aria-labelledby="evidence-title" className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-white">Honest Evidence &amp; Verification Matrix</h2>
-              <p className="text-sm text-slate-400 mt-1">
+              <h1 id="evidence-title" className="text-2xl font-bold text-white">
+                Honest Evidence &amp; Verification Matrix
+              </h1>
+              <p className="text-sm text-slate-300 mt-1 leading-relaxed">
                 Accurate, verifiable status of all drift classes and negative revert proofs.
               </p>
             </div>
@@ -1043,7 +1208,7 @@ export const Workbench: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-3">
                   Verified On-Chain (Accepted by Validators)
                 </span>
-                <ul className="text-sm space-y-2.5 text-slate-300 leading-relaxed">
+                <ul className="text-sm space-y-2.5 text-slate-200 leading-relaxed">
                   <li><strong>SAME / UNCHANGED:</strong> Alan Turing rev 1380390650 (4/5 votes agreed).</li>
                   <li><strong>COSMETIC:</strong> Computing Hardware rev 1258760000 (3/5 votes agreed).</li>
                   <li><strong>MATERIAL:</strong> Python Language rev 1258761000 (3/5 votes agreed).</li>
@@ -1056,13 +1221,13 @@ export const Workbench: React.FC = () => {
                 <span className="text-xs font-bold uppercase tracking-wider text-rose-400 block mb-3">
                   Unit-Tested Only &amp; On-Chain Reverts
                 </span>
-                <ul className="text-sm space-y-2.5 text-slate-300 leading-relaxed">
-                  <li><strong>REMOVED:</strong> Unit-tested only. Real deletion calibration empirical margin: 0.1630. Attempted on-chain reverts: 4 transactions reverted with "invalid model output".</li>
+                <ul className="text-sm space-y-2.5 text-slate-200 leading-relaxed">
+                  <li><strong>REMOVED:</strong> Unit-tested only. Real deletion calibration empirical margin: 0.1630. Attempted on-chain reverts: 4 transactions reverted with &quot;invalid model output&quot;.</li>
                   <li><strong>Negative Tests:</strong> 11 negative on-chain tests covering URL schemes, domains, oldid order, invalid model outputs, and unauthorized access.</li>
                 </ul>
               </div>
             </div>
-          </div>
+          </section>
         )}
       </div>
 
@@ -1072,6 +1237,12 @@ export const Workbench: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         progress={txProgress}
         title={modalTitle}
+      />
+
+      {/* Test Funds & Gas Guide Modal */}
+      <FundingModal
+        isOpen={showFundingModal}
+        onClose={() => setShowFundingModal(false)}
       />
     </div>
   );
