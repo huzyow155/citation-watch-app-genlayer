@@ -202,6 +202,9 @@ async function runE2E() {
     // STEP 2: CONNECT / IMPORT THROWAWAY WALLET
     // -------------------------------------------------------------------------
     console.log("\n[2/7] Importing throwaway key in UI Header...");
+    // Dismiss tour if open
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(400);
     await page.click('button:has-text("Connect"), button:has-text("0x")');
     await page.waitForSelector("text=Wallet Connection", { state: "visible" });
     await page.fill('input[type="password"]', privKey);
@@ -209,7 +212,7 @@ async function runE2E() {
     await page.waitForTimeout(1000);
 
     const shortAddr = `${account.address.slice(0, 6)}...${account.address.slice(-4)}`;
-    const headerPillText = await page.locator("header button").textContent();
+    const headerPillText = await page.locator("header button").last().textContent();
     console.log(`  Header pill shows: "${headerPillText?.trim()}" (expected: ${shortAddr})`);
 
     // -------------------------------------------------------------------------
@@ -218,6 +221,7 @@ async function runE2E() {
     console.log("\n[3/7] Executing negative flow: non-verbatim quote registration...");
     await page.click('a[href="/app"]');
     await page.waitForURL("**/app");
+    await page.keyboard.press("Escape");
     await page.waitForTimeout(2000);
     await page.click('button:has-text("Register Citation")');
 
@@ -228,9 +232,9 @@ async function runE2E() {
     );
 
     // Remove any existing quotes
-    const removeButtons = await page.$$('button:has-text("Remove")');
-    for (const b of removeButtons) {
-      await b.click();
+    while ((await page.locator('button:has-text("Remove")').count()) > 0) {
+      await page.locator('button:has-text("Remove")').first().click();
+      await page.waitForTimeout(300);
     }
 
     const invalidQuote = "Claude Shannon walked on Mars in 1952 with an alien delegation.";
@@ -271,11 +275,11 @@ async function runE2E() {
     // STEP 4: REAL REGISTRATION FLOW (CLAUDE SHANNON)
     // -------------------------------------------------------------------------
     console.log("\n[4/7] Registering FRESH citation baseline (Claude Shannon)...");
-    const testLabel = `Claude Shannon MIT Professorship (${Date.now().toString().slice(-4)})`;
+    const testLabel = `Claude Shannon Academic Aptitude (${Date.now().toString().slice(-4)})`;
     const baselineUrl = "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1378873158";
     const baselineOldid = "1378873158";
     const canonicalUrl = "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1378873158";
-    const validQuote = "From 1956 to 1978, he was a professor at MIT.";
+    const validQuote = "His best subjects were science and mathematics.";
 
     // Compute expected deterministic ID
     const expectedNonce = preLedgerMeta.nonce + 1;
@@ -293,9 +297,9 @@ async function runE2E() {
     await page.fill('input[placeholder*="https://en.wikipedia.org/w/index.php"]', baselineUrl);
 
     // Clean quotes
-    const remButtons2 = await page.$$('button:has-text("Remove")');
-    for (const b of remButtons2) {
-      await b.click();
+    while ((await page.locator('button:has-text("Remove")').count()) > 0) {
+      await page.locator('button:has-text("Remove")').first().click();
+      await page.waitForTimeout(300);
     }
     await page.fill('input[placeholder*="Add verbatim sentence"]', validQuote);
     await page.click('button:has-text("Add Quote")');
@@ -333,15 +337,15 @@ async function runE2E() {
     await page.waitForTimeout(3000);
 
     // Wait for the detail view to finish loading and display citation data
-    await page.waitForSelector('span:has-text("Article Title")', { timeout: 20000 });
+    await page.waitForSelector('span:has-text("Wikipedia Article:")', { timeout: 20000 });
 
-    const idLocator = page.locator('p.font-mono:has-text("ID:")');
+    const idLocator = page.locator('span.font-mono:has-text("ID:")');
     const idLine = (await idLocator.textContent()) || "";
     const registeredCitationId = idLine.replace(/^ID:\s*/, "").trim();
 
-    const detailArticle = (await page.locator('span:has-text("Article Title") + span').textContent())?.trim();
-    const detailOldid = (await page.locator('span:has-text("Baseline Oldid") + span').textContent())?.trim();
-    const detailRegistrant = (await page.locator('span:has-text("Registrant Address") + span').textContent())?.trim();
+    const detailArticle = (await page.locator('span:has-text("Wikipedia Article:") + span').textContent())?.trim();
+    const detailOldid = (await page.locator('span:has-text("Baseline Revision") + span').textContent())?.trim();
+    const detailRegistrant = (await page.locator('span:has-text("Registrant:") + span').textContent())?.trim();
 
     console.log(`  Readback Citation ID: "${registeredCitationId}"`);
     console.log(`  Readback Title:       "${detailArticle}"`);
@@ -365,7 +369,7 @@ async function runE2E() {
     if (registeredCitationId !== expectedCitationId) {
       throw new Error(`CRITICAL INTEGRITY FAILURE: Citation ID '${registeredCitationId}' != expected deterministic '${expectedCitationId}'`);
     }
-    console.log("  ✅ ALL CITATION INTEGRITY ASSERTIONS PASSED!");
+    console.log("  [OK] ALL CITATION INTEGRITY ASSERTIONS PASSED!");
 
     await page.screenshot({ path: path.join(SCREENS_DIR, "05_citation_detail_readback.png") });
     evidence.screenshots.push("docs/screens/05_citation_detail_readback.png");
@@ -499,7 +503,7 @@ async function runE2E() {
     await page.click('button:has-text("Claims Board")');
     await page.waitForTimeout(1000);
 
-    const claimHeadline = `Claude Shannon faculty service at MIT (${Date.now().toString().slice(-4)})`;
+    const claimHeadline = `Claude Shannon excelled in science and mathematics (${Date.now().toString().slice(-4)})`;
     await page.fill('form:has-text("Publish New Assertion") input', registeredCitationId || "");
     await page.fill('form:has-text("Publish New Assertion") textarea', claimHeadline);
 
@@ -564,7 +568,7 @@ async function runE2E() {
     if (claimRecord.badge !== "VERIFIED") {
       throw new Error(`CRITICAL INTEGRITY FAILURE: Expected badge 'VERIFIED', got '${claimRecord.badge}'`);
     }
-    console.log("  ✅ ALL CLAIM INTEGRITY ASSERTIONS PASSED!");
+    console.log("  [OK] ALL CLAIM INTEGRITY ASSERTIONS PASSED!");
 
     // Set input for refresh
     await page.fill('form:has-text("Refresh Claim Badge") input', newClaimId);
