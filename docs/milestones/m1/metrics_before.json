@@ -1,0 +1,118 @@
+{
+  "capturedAt": "2026-10-24T13:20:24.561Z",
+  "targetUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "headCommit": "9da5734",
+  "routes": [
+    "/",
+    "/workbench"
+  ],
+  "axeAudits": {
+    "landingDesktop": {
+      "totalViolations": 1,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 0,
+        "serious": 1,
+        "critical": 0
+      },
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 6
+        }
+      ]
+    },
+    "landingMobile": {
+      "totalViolations": 1,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 0,
+        "serious": 1,
+        "critical": 0
+      },
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "nodes": 1
+        }
+      ]
+    },
+    "workbenchDesktop": {
+      "totalViolations": 2,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 1,
+        "serious": 1,
+        "critical": 0
+      },
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+          "nodes": 2
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "description": "Ensure all page content is contained by landmarks",
+          "nodes": 1
+        }
+      ]
+    },
+    "workbenchMobile": {
+      "totalViolations": 2,
+      "byImpact": {
+        "minor": 0,
+        "moderate": 1,
+        "serious": 1,
+        "critical": 0
+      },
+      "violations": [
+        {
+          "id": "label-content-name-mismatch",
+          "impact": "serious",
+          "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+          "nodes": 2
+        },
+        {
+          "id": "region",
+          "impact": "moderate",
+          "description": "Ensure all page content is contained by landmarks",
+          "nodes": 1
+        }
+      ]
+    }
+  },
+  "touchTargets": {
+    "landingDesktopUnder44px": 7,
+    "landingDesktopTotal": 9,
+    "workbenchUnder44px": 3,
+    "workbenchTotal": 3
+  },
+  "mobileOverflowFree": true,
+  "onboarding": {
+    "hasInteractiveGuidedTour": false,
+    "hasWalkthroughModalOrPill": false,
+    "tourStepsCount": 0
+  },
+  "fundingGuide": {
+    "hasDedicatedFundingGuideViewOrModal": false,
+    "hasPreWriteBalanceValidationGuard": false,
+    "writeButtonsWithFundingNotes": 0,
+    "totalWriteButtons": 0
+  },
+  "errorHandling": {
+    "hasErrorBoundaryComponent": false,
+    "hasSpecificConsensusDisagreementDetail": false,
+    "skeletonLoadersPresent": false
+  },
+  "testSuite": {
+    "vitestTestFiles": 5,
+    "vitestTests": 37
+  }
+}
