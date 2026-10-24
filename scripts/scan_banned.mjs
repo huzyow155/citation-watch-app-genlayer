@@ -10,6 +10,12 @@ import path from "path";
 // - "unanimous" / "unanimously"
 // - Exclusivity claims: "first", "only", "the only", "unique" (when referring to the dApp / contract)
 // - "revolutionary"
+// - Milestone 1 Fix Pass additions:
+//   - "immutable"
+//   - "prevents" / "prevent"
+//   - "guarantee" / "guarantees"
+//   - "trustless"
+//   - "FINALIZED" (outside code that maps raw status_name)
 
 const BANNED_PATTERNS = [
   { pattern: /\bcryptographic\s+proof\b/i, name: "cryptographic proof" },
@@ -19,6 +25,10 @@ const BANNED_PATTERNS = [
   { pattern: /\blive\s+network\b/i, name: "live network" },
   { pattern: /\bunanimous(ly)?\b/i, name: "unanimous" },
   { pattern: /\brevolutionary\b/i, name: "revolutionary" },
+  { pattern: /\bimmutable\b/i, name: "immutable" },
+  { pattern: /\bprevents?\b/i, name: "prevents" },
+  { pattern: /\bguarantees?\b/i, name: "guarantee(s)" },
+  { pattern: /\btrustless\b/i, name: "trustless" },
   {
     pattern: /\b(the\s+first\s+(?:contract|platform|system|implementation|dapp)|the\s+only\s+(?:contract|platform|system|implementation|solution)|no\s+one\s+else)\b/i,
     name: "exclusivity claim",
@@ -27,21 +37,68 @@ const BANNED_PATTERNS = [
 
 const rootDir = process.cwd();
 const dirsToScan = ["src", "docs"];
-const filesToScan = ["index.html", "README.md"];
+const filesToScan = ["index.html", "README.md", "CHANGELOG.md"];
 
 let violations = [];
 
+function isAllowedFinalizedUsage(filePath, line) {
+  // FINALIZED is permitted only in code mapping the raw status_name / receipt status from GenVM
+  const relPath = path.relative(rootDir, filePath).replace(/\\/g, "/");
+  if (
+    relPath.includes("src/lib/txLifecycle.ts") ||
+    relPath.includes("scripts/run_e2e.mjs") ||
+    relPath.includes("scripts/test_four_writes_zero_balance.mjs") ||
+    relPath.includes("scripts/test_zero_balance.mjs") ||
+    relPath.includes("scripts/capture_matrix.mjs") ||
+    relPath.includes("scripts/verify_bundle.mjs")
+  ) {
+    if (
+      line.includes("statusName") ||
+      line.includes("status_name") ||
+      line.includes("rawStatus") ||
+      line.includes("status ===") ||
+      line.includes("finalStatus") ||
+      line.includes("FINALIZED") // in status check lines
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function scanFile(filePath) {
+  const relPath = path.relative(rootDir, filePath).replace(/\\/g, "/");
   const content = fs.readFileSync(filePath, "utf8");
   const lines = content.split("\n");
 
   lines.forEach((line, index) => {
+    // Check standard banned patterns
     for (const rule of BANNED_PATTERNS) {
       if (rule.pattern.test(line)) {
+        // Allow exact contract error string key in revertMap.ts
+        if (
+          relPath.includes("src/lib/revertMap.ts") &&
+          line.trim().startsWith('"baseline must be an immutable revision permalink":')
+        ) {
+          continue;
+        }
+
+        violations.push({
+          file: relPath,
+          line: index + 1,
+          word: rule.name,
+          text: line.trim(),
+        });
+      }
+    }
+
+    // Check FINALIZED pattern (flag outside code mapping raw status_name)
+    if (/\bFINALIZED\b/.test(line)) {
+      if (!isAllowedFinalizedUsage(filePath, line)) {
         violations.push({
           file: path.relative(rootDir, filePath),
           line: index + 1,
-          word: rule.name,
+          word: "FINALIZED outside raw status_name mapping",
           text: line.trim(),
         });
       }

@@ -17,7 +17,7 @@ export const App: React.FC = () => {
           >
             Skip to main content
           </a>
-          <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100">
+          <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100 overflow-x-hidden">
             <Header />
             <main id="main-content" className="flex-1 focus:outline-none">
               <Routes>

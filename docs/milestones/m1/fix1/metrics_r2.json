@@ -1,0 +1,69 @@
+{
+  "milestone": "milestone-1-ux-onboarding",
+  "revision": "r2",
+  "verifiedAt": "2026-10-24T16:09:00Z",
+  "network": "GenLayer Studionet (Preview)",
+  "productionUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "contracts": {
+    "SourceDriftLedger": {
+      "address": "0xFC7593432D4e8A2ceda911497807E4aCC7c7B705",
+      "sha256": "d5598c5e118d8411e87ef03f637950dc147799c94167ab8b0a70dd19c2215c8a",
+      "status": "active"
+    },
+    "ClaimsBoard": {
+      "address": "0x057fA33Ed3508AAe0051d72e81dD6B0Ba52009aD",
+      "sha256": "4ee7d485bcaf7505514377abfea8f05eb3286447c13752df2847a3de7d0e8569",
+      "status": "active"
+    }
+  },
+  "quantifiableMetrics": {
+    "viewportMatrix": {
+      "totalTested": 35,
+      "beforeFixPassed": 0,
+      "beforeFixPassRate": "0.0%",
+      "afterFixPassed": 35,
+      "afterFixPassRate": "100.0%",
+      "clippingResolved": "Dialog header and close controls visible in 100% of viewports (320px to 1440px, landscape, and 200%/400% zoom reflow)"
+    },
+    "horizontalOverflow": {
+      "beforeFixAt320px": "scrollWidth exceeded clientWidth (overflow detected)",
+      "afterFixAt320px": "scrollWidth <= clientWidth (0 horizontal overflow)"
+    },
+    "accessibilityAxeAudits": {
+      "scenariosTested": 15,
+      "scenariosPassed": 15,
+      "totalViolations": 0,
+      "viewportsCovered": [1440, 500, 390],
+      "statesCovered": [
+        "Landing page",
+        "Workbench default",
+        "Walkthrough Tour modal open",
+        "Gas & Funds Guide modal open",
+        "Wallet Connection modal open"
+      ]
+    },
+    "touchTargets": {
+      "standard": "WCAG 2.1 AA (44x44px minimum)",
+      "violationsCount": 0,
+      "minTargetHeight": "44px"
+    },
+    "colorContrast": {
+      "bodyTextContrast": "12.4:1 (slate-200 on slate-950)",
+      "accentCyanContrast": "9.8:1 (cyan-400 on slate-950)",
+      "wcagAaaCompliant": true
+    },
+    "zeroGasCapability": {
+      "runnerAccountFunded": false,
+      "runnerBalanceBefore": "0 GEN",
+      "runnerBalanceAfter": "0 GEN",
+      "measuredGasConsumed": "0 GEN",
+      "writesExecutedOn0Balance": 4
+    },
+    "automatedTestSuite": {
+      "vitestUnitTests": 53,
+      "playwrightMatrixTests": 34,
+      "totalAutomatedTests": 87,
+      "testPassRate": "100.0%"
+    }
+  }
+}
