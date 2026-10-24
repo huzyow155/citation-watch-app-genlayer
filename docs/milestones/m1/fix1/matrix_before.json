@@ -1,0 +1,1086 @@
+{
+  "capturedAt": "2026-10-24T14:27:12.309Z",
+  "stage": "before",
+  "targetUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "totalCells": 35,
+  "passedCells": 0,
+  "failedCells": 35,
+  "cells": [
+    {
+      "cell": "w320_h568",
+      "width": 320,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 320,
+      "cardRect": {
+        "top": -305.625,
+        "left": 16,
+        "bottom": 373.625,
+        "right": 304,
+        "width": 288,
+        "height": 679.25
+      },
+      "closeRect": {
+        "top": -280.625,
+        "left": 242.5625,
+        "bottom": -236.625,
+        "right": 279
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w320_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w320_h667",
+      "width": 320,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 320,
+      "cardRect": {
+        "top": -305.625,
+        "left": 16,
+        "bottom": 373.625,
+        "right": 304,
+        "width": 288,
+        "height": 679.25
+      },
+      "closeRect": {
+        "top": -280.625,
+        "left": 242.5625,
+        "bottom": -236.625,
+        "right": 279
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w320_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w320_h740",
+      "width": 320,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 320,
+      "cardRect": {
+        "top": -305.625,
+        "left": 16,
+        "bottom": 373.625,
+        "right": 304,
+        "width": 288,
+        "height": 679.25
+      },
+      "closeRect": {
+        "top": -280.625,
+        "left": 242.5625,
+        "bottom": -236.625,
+        "right": 279
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w320_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w320_h900",
+      "width": 320,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 320,
+      "cardRect": {
+        "top": -305.625,
+        "left": 16,
+        "bottom": 373.625,
+        "right": 304,
+        "width": 288,
+        "height": 679.25
+      },
+      "closeRect": {
+        "top": -280.625,
+        "left": 242.5625,
+        "bottom": -236.625,
+        "right": 279
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w320_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w360_h568",
+      "width": 360,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 360,
+      "cardRect": {
+        "top": -286.25,
+        "left": 16,
+        "bottom": 354.25,
+        "right": 344,
+        "width": 328,
+        "height": 640.5
+      },
+      "closeRect": {
+        "top": -261.25,
+        "left": 276.71875,
+        "bottom": -217.25,
+        "right": 319
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w360_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w360_h667",
+      "width": 360,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 360,
+      "cardRect": {
+        "top": -286.25,
+        "left": 16,
+        "bottom": 354.25,
+        "right": 344,
+        "width": 328,
+        "height": 640.5
+      },
+      "closeRect": {
+        "top": -261.25,
+        "left": 276.71875,
+        "bottom": -217.25,
+        "right": 319
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w360_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w360_h740",
+      "width": 360,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 360,
+      "cardRect": {
+        "top": -286.25,
+        "left": 16,
+        "bottom": 354.25,
+        "right": 344,
+        "width": 328,
+        "height": 640.5
+      },
+      "closeRect": {
+        "top": -261.25,
+        "left": 276.71875,
+        "bottom": -217.25,
+        "right": 319
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w360_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w360_h900",
+      "width": 360,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 390,
+      "docClientWidth": 360,
+      "cardRect": {
+        "top": -286.25,
+        "left": 16,
+        "bottom": 354.25,
+        "right": 344,
+        "width": 328,
+        "height": 640.5
+      },
+      "closeRect": {
+        "top": -261.25,
+        "left": 276.71875,
+        "bottom": -217.25,
+        "right": 319
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.relative",
+        "button.flex.min-h-[44px].items-center",
+        "span.font-mono"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/w360_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w390_h568",
+      "width": 390,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardRect": {
+        "top": -270.25,
+        "left": 16,
+        "bottom": 338.25,
+        "right": 374,
+        "width": 358,
+        "height": 608.5
+      },
+      "closeRect": {
+        "top": -245.25,
+        "left": 305,
+        "bottom": -201.25,
+        "right": 349
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w390_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w390_h667",
+      "width": 390,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardRect": {
+        "top": -270.25,
+        "left": 16,
+        "bottom": 338.25,
+        "right": 374,
+        "width": 358,
+        "height": 608.5
+      },
+      "closeRect": {
+        "top": -245.25,
+        "left": 305,
+        "bottom": -201.25,
+        "right": 349
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w390_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w390_h740",
+      "width": 390,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardRect": {
+        "top": -270.25,
+        "left": 16,
+        "bottom": 338.25,
+        "right": 374,
+        "width": 358,
+        "height": 608.5
+      },
+      "closeRect": {
+        "top": -245.25,
+        "left": 305,
+        "bottom": -201.25,
+        "right": 349
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w390_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w390_h900",
+      "width": 390,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 390,
+      "docClientWidth": 390,
+      "cardRect": {
+        "top": -270.25,
+        "left": 16,
+        "bottom": 338.25,
+        "right": 374,
+        "width": 358,
+        "height": 608.5
+      },
+      "closeRect": {
+        "top": -245.25,
+        "left": 305,
+        "bottom": -201.25,
+        "right": 349
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w390_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w414_h568",
+      "width": 414,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 414,
+      "docClientWidth": 414,
+      "cardRect": {
+        "top": -244.875,
+        "left": 16,
+        "bottom": 312.875,
+        "right": 398,
+        "width": 382,
+        "height": 557.75
+      },
+      "closeRect": {
+        "top": -219.875,
+        "left": 329,
+        "bottom": -175.875,
+        "right": 373
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w414_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w414_h667",
+      "width": 414,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 414,
+      "docClientWidth": 414,
+      "cardRect": {
+        "top": -244.875,
+        "left": 16,
+        "bottom": 312.875,
+        "right": 398,
+        "width": 382,
+        "height": 557.75
+      },
+      "closeRect": {
+        "top": -219.875,
+        "left": 329,
+        "bottom": -175.875,
+        "right": 373
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w414_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w414_h740",
+      "width": 414,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 414,
+      "docClientWidth": 414,
+      "cardRect": {
+        "top": -244.875,
+        "left": 16,
+        "bottom": 312.875,
+        "right": 398,
+        "width": 382,
+        "height": 557.75
+      },
+      "closeRect": {
+        "top": -219.875,
+        "left": 329,
+        "bottom": -175.875,
+        "right": 373
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w414_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w414_h900",
+      "width": 414,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 414,
+      "docClientWidth": 414,
+      "cardRect": {
+        "top": -244.875,
+        "left": 16,
+        "bottom": 312.875,
+        "right": 398,
+        "width": 382,
+        "height": 557.75
+      },
+      "closeRect": {
+        "top": -219.875,
+        "left": 329,
+        "bottom": -175.875,
+        "right": 373
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w414_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w500_h568",
+      "width": 500,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 500,
+      "docClientWidth": 500,
+      "cardRect": {
+        "top": -227.5,
+        "left": 16,
+        "bottom": 295.5,
+        "right": 484,
+        "width": 468,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -202.5,
+        "left": 415,
+        "bottom": -158.5,
+        "right": 459
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w500_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w500_h667",
+      "width": 500,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 500,
+      "docClientWidth": 500,
+      "cardRect": {
+        "top": -227.5,
+        "left": 16,
+        "bottom": 295.5,
+        "right": 484,
+        "width": 468,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -202.5,
+        "left": 415,
+        "bottom": -158.5,
+        "right": 459
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w500_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w500_h740",
+      "width": 500,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 500,
+      "docClientWidth": 500,
+      "cardRect": {
+        "top": -227.5,
+        "left": 16,
+        "bottom": 295.5,
+        "right": 484,
+        "width": 468,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -202.5,
+        "left": 415,
+        "bottom": -158.5,
+        "right": 459
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w500_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w500_h900",
+      "width": 500,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 500,
+      "docClientWidth": 500,
+      "cardRect": {
+        "top": -227.5,
+        "left": 16,
+        "bottom": 295.5,
+        "right": 484,
+        "width": 468,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -202.5,
+        "left": 415,
+        "bottom": -158.5,
+        "right": 459
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w500_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w768_h568",
+      "width": 768,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 768,
+      "docClientWidth": 768,
+      "cardRect": {
+        "top": -224.5,
+        "left": 128,
+        "bottom": 298.5,
+        "right": 640,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -199.5,
+        "left": 571,
+        "bottom": -155.5,
+        "right": 615
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w768_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w768_h667",
+      "width": 768,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 768,
+      "docClientWidth": 768,
+      "cardRect": {
+        "top": -224.5,
+        "left": 128,
+        "bottom": 298.5,
+        "right": 640,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -199.5,
+        "left": 571,
+        "bottom": -155.5,
+        "right": 615
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w768_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w768_h740",
+      "width": 768,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 768,
+      "docClientWidth": 768,
+      "cardRect": {
+        "top": -224.5,
+        "left": 128,
+        "bottom": 298.5,
+        "right": 640,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -199.5,
+        "left": 571,
+        "bottom": -155.5,
+        "right": 615
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w768_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w768_h900",
+      "width": 768,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 768,
+      "docClientWidth": 768,
+      "cardRect": {
+        "top": -224.5,
+        "left": 128,
+        "bottom": 298.5,
+        "right": 640,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -199.5,
+        "left": 571,
+        "bottom": -155.5,
+        "right": 615
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w768_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w1024_h568",
+      "width": 1024,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1024,
+      "docClientWidth": 1024,
+      "cardRect": {
+        "top": -220.5,
+        "left": 256,
+        "bottom": 302.5,
+        "right": 768,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 699,
+        "bottom": -151.5,
+        "right": 743
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1024_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w1024_h667",
+      "width": 1024,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1024,
+      "docClientWidth": 1024,
+      "cardRect": {
+        "top": -220.5,
+        "left": 256,
+        "bottom": 302.5,
+        "right": 768,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 699,
+        "bottom": -151.5,
+        "right": 743
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1024_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w1024_h740",
+      "width": 1024,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1024,
+      "docClientWidth": 1024,
+      "cardRect": {
+        "top": -220.5,
+        "left": 256,
+        "bottom": 302.5,
+        "right": 768,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 699,
+        "bottom": -151.5,
+        "right": 743
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1024_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w1024_h900",
+      "width": 1024,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1024,
+      "docClientWidth": 1024,
+      "cardRect": {
+        "top": -220.5,
+        "left": 256,
+        "bottom": 302.5,
+        "right": 768,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 699,
+        "bottom": -151.5,
+        "right": 743
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1024_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "w1440_h568",
+      "width": 1440,
+      "height": 568,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "cardRect": {
+        "top": -220.5,
+        "left": 464,
+        "bottom": 302.5,
+        "right": 976,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 907,
+        "bottom": -151.5,
+        "right": 951
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1440_h568.png",
+      "pass": false
+    },
+    {
+      "cell": "w1440_h667",
+      "width": 1440,
+      "height": 667,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "cardRect": {
+        "top": -220.5,
+        "left": 464,
+        "bottom": 302.5,
+        "right": 976,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 907,
+        "bottom": -151.5,
+        "right": 951
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1440_h667.png",
+      "pass": false
+    },
+    {
+      "cell": "w1440_h740",
+      "width": 1440,
+      "height": 740,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "cardRect": {
+        "top": -220.5,
+        "left": 464,
+        "bottom": 302.5,
+        "right": 976,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 907,
+        "bottom": -151.5,
+        "right": 951
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1440_h740.png",
+      "pass": false
+    },
+    {
+      "cell": "w1440_h900",
+      "width": 1440,
+      "height": 900,
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 1440,
+      "docClientWidth": 1440,
+      "cardRect": {
+        "top": -220.5,
+        "left": 464,
+        "bottom": 302.5,
+        "right": 976,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -195.5,
+        "left": 907,
+        "bottom": -151.5,
+        "right": 951
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/w1440_h900.png",
+      "pass": false
+    },
+    {
+      "cell": "landscape_667x375",
+      "width": 667,
+      "height": 375,
+      "special": "landscape",
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": true,
+      "docScrollWidth": 667,
+      "docClientWidth": 667,
+      "cardRect": {
+        "top": -227.5,
+        "left": 77.5,
+        "bottom": 295.5,
+        "right": 589.5,
+        "width": 512,
+        "height": 523
+      },
+      "closeRect": {
+        "top": -202.5,
+        "left": 520.5,
+        "bottom": -158.5,
+        "right": 564.5
+      },
+      "overflowingElements": [],
+      "screenshot": "docs/milestones/m1/fix1/before/landscape_667x375.png",
+      "pass": false
+    },
+    {
+      "cell": "zoom_200_reflow_1280x800",
+      "width": 1280,
+      "height": 800,
+      "special": "zoom_200%",
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": true,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 1808,
+      "docClientWidth": 1280,
+      "cardRect": {
+        "top": -433,
+        "left": 128,
+        "bottom": 613,
+        "right": 1152,
+        "width": 1024,
+        "height": 1046
+      },
+      "closeRect": {
+        "top": -383,
+        "left": 1014,
+        "bottom": -295,
+        "right": 1102
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-2",
+        "div.hidden.lg:flex.min-h-[44px]",
+        "span.text-slate-300.font-semibold",
+        "a.min-h-[44px].inline-flex.items-center",
+        "span",
+        "svg",
+        "path",
+        "div.relative"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/zoom_200_reflow_1280x800.png",
+      "pass": false
+    },
+    {
+      "cell": "zoom_400_reflow_1280x800",
+      "width": 1280,
+      "height": 800,
+      "special": "zoom_400%",
+      "dialogPresent": true,
+      "modalBoundingBoxInsideViewport": false,
+      "closeSkipControlVisible": false,
+      "nextBackVisible": false,
+      "documentScrollWidthGteClientWidth": false,
+      "docScrollWidth": 3615,
+      "docClientWidth": 1280,
+      "cardRect": {
+        "top": -1178.5,
+        "left": 64,
+        "bottom": 1538.5,
+        "right": 1216,
+        "width": 1152,
+        "height": 2717
+      },
+      "closeRect": {
+        "top": -1078.5,
+        "left": 970.21875,
+        "bottom": -902.5,
+        "right": 1116
+      },
+      "overflowingElements": [
+        "div.flex.items-center.space-x-6",
+        "nav.hidden.md:flex.items-center",
+        "a.min-h-[44px].inline-flex.items-center",
+        "div.flex.items-center.space-x-2",
+        "button.inline-flex.min-h-[44px].items-center",
+        "svg",
+        "path",
+        "span.hidden.sm:inline"
+      ],
+      "screenshot": "docs/milestones/m1/fix1/before/zoom_400_reflow_1280x800.png",
+      "pass": false
+    }
+  ]
+}

@@ -50,7 +50,8 @@ export const Landing: React.FC = () => {
           {/* Hero Headline with Typewriter */}
           <h1
             id="hero-headline"
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight min-h-[5rem] sm:min-h-[7rem]"
+            aria-label="Citation Integrity, Enforced on GenLayer."
+            className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight min-h-[4rem] sm:min-h-[7rem] break-words [overflow-wrap:anywhere]"
           >
             <span>{headlineTypewriter.displayedText}</span>
             {headlineTypewriter.showCaret && (
@@ -61,9 +62,10 @@ export const Landing: React.FC = () => {
           {/* Subtext with Typewriter */}
           <p
             id="hero-subtext"
-            className="mx-auto mt-6 max-w-2xl text-base sm:text-lg md:text-xl text-slate-200 leading-relaxed min-h-[4.5rem]"
+            className="mx-auto mt-4 sm:mt-6 max-w-2xl text-sm sm:text-base md:text-xl text-slate-200 leading-relaxed min-h-[3.5rem] sm:min-h-[4.5rem] break-words [overflow-wrap:anywhere]"
           >
-            <span>{subtextTypewriter.displayedText}</span>
+            <span className="sr-only">Register Wikipedia revision citations, verify verbatim quotes on-chain via Intelligent Contracts, and detect later drift.</span>
+            <span aria-hidden="true">{subtextTypewriter.displayedText}</span>
             {subtextTypewriter.showCaret && (
               <span className="inline-block w-0.5 h-4 sm:h-5 bg-cyan-400 ml-1 align-middle animate-pulse" />
             )}

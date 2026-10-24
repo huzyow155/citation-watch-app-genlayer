@@ -58,7 +58,7 @@ export const REVERT_MAP: Record<string, RevertDefinition> = {
   "baseline must be an immutable revision permalink": {
     code: "BASELINE_NOT_PERMALINK",
     category: "VALIDATION",
-    friendlyMessage: "Baseline citations must use an immutable revision permalink with an oldid query parameter.",
+    friendlyMessage: "Baseline citations must use a permanent revision permalink with an oldid query parameter.",
     remedy: "Provide a permalink containing ?title=<Title>&oldid=<number>.",
   },
   "baseline verification failed": {
@@ -232,7 +232,7 @@ export const REVERT_MAP: Record<string, RevertDefinition> = {
   "source url hostname cannot be punycode": {
     code: "URL_IS_PUNYCODE",
     category: "VALIDATION",
-    friendlyMessage: "Punycode domain names are not allowed to prevent spoofing.",
+    friendlyMessage: "Punycode domain names are disallowed.",
     remedy: "Use standard ASCII wikipedia.org domain.",
   },
   "source url hostname cannot end with a dot": {
@@ -397,7 +397,7 @@ export const REVERT_MAP: Record<string, RevertDefinition> = {
     code: "LEDGER_ALREADY_SET",
     category: "VALIDATION",
     friendlyMessage: "The SourceDriftLedger address on ClaimsBoard has already been configured.",
-    remedy: "The ledger address is immutable once configured.",
+    remedy: "The ledger address cannot be changed once configured.",
   },
   "ledger not set": {
     code: "LEDGER_NOT_SET",

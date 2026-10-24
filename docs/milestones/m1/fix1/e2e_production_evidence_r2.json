@@ -1,0 +1,200 @@
+{
+  "verifiedAt": "2026-10-24T16:09:17.274Z",
+  "productionUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "network": "GenLayer Studionet (Preview)",
+  "chainId": 61999,
+  "runnerAddress": "0xf4780364D66D87368729b80A285E24084138203e",
+  "runnerBalanceBefore": "0",
+  "runnerBalanceAfter": "0",
+  "totalGasConsumed": "0 GEN (measured Studionet consumption: 0 GEN)",
+  "disclaimer": "Studionet-only throwaway key. Preview network, no real value.",
+  "tourExecution": {
+    "autoOpenedOnFirstVisit": true,
+    "stepsNavigated": 5,
+    "finishedViaButton": true
+  },
+  "transactions": [
+    {
+      "operation": "register_citation",
+      "txHash": "0xdb3ebfb2092f203eb610c620b883d46682d9d3bc330205cc95929bca204a4050",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xdb3ebfb2092f203eb610c620b883d46682d9d3bc330205cc95929bca204a4050",
+      "citationId": "8bf9a5e9e40b",
+      "label": "Claude Shannon Teatime Turing (7171)",
+      "baselineUrl": "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1381327532",
+      "baselineOldid": "1381327532",
+      "blockNumber": "0x0",
+      "rawStatusName": null,
+      "rawStatus": "FINALIZED",
+      "receiptStatus": "0x1",
+      "validatorVotes": {
+        "agree": 3,
+        "total": 5,
+        "summary": "3/5",
+        "details": {
+          "0x336458747913FE397be82c4F0926ACeB3ab13618": "idle",
+          "0x4619C8420D50c9dE477DB2CBb7b4863A041688CB": "idle",
+          "0xB4EE99165ffe987E64B7b72e45a753309c501eef": "agree",
+          "0xCe0B66448435cA53665C954705Abd753515594Cf": "agree",
+          "0xb9ed1258763dfFC83356b15e8A20236B86E42ba2": "agree"
+        }
+      },
+      "elapsedSeconds": 39.12
+    },
+    {
+      "operation": "audit_citation",
+      "targetUrl": "https://en.wikipedia.org/wiki/Claude_Shannon",
+      "targetKind": "LIVE",
+      "txHash": "0x157c801d8b220ec37b2a32fed473c71a25f6f3574e84b3eeb9b49748e37bdc82",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x157c801d8b220ec37b2a32fed473c71a25f6f3574e84b3eeb9b49748e37bdc82",
+      "citationId": "8bf9a5e9e40b",
+      "verdict": "UNCHANGED",
+      "blockNumber": "0x0",
+      "rawStatusName": null,
+      "rawStatus": "FINALIZED",
+      "receiptStatus": "0x1",
+      "validatorVotes": {
+        "agree": 3,
+        "total": 5,
+        "summary": "3/5",
+        "details": {
+          "0x5847AF34a4e5bA96490f8c883598f68EC9B0B907": "agree",
+          "0x9C182DE7F93AdbE8ee3D62570613eC23c5683cAc": "idle",
+          "0xCe0B66448435cA53665C954705Abd753515594Cf": "agree",
+          "0xb9ed1258763dfFC83356b15e8A20236B86E42ba2": "idle",
+          "0xe06A34A1eBd398AF3399d08593B8c3C433CdD947": "agree"
+        }
+      },
+      "elapsedSeconds": 17.49
+    },
+    {
+      "operation": "publish_claim",
+      "txHash": "0x3e1493a782666f04f68b2c227816d2ede4ee89031df61bfab6a5bd22c45ce7b5",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x3e1493a782666f04f68b2c227816d2ede4ee89031df61bfab6a5bd22c45ce7b5",
+      "claimId": "2fd94aacf982",
+      "citationId": "8bf9a5e9e40b",
+      "headline": "Claude Shannon and Alan Turing met at teatime in cafeteria (6216)",
+      "blockNumber": "0x0",
+      "rawStatusName": null,
+      "rawStatus": "FINALIZED",
+      "receiptStatus": "0x1",
+      "validatorVotes": {
+        "agree": 3,
+        "total": 5,
+        "summary": "3/5",
+        "details": {
+          "0x0eb3859451817bC25Cc717D4F676D54D0D3aD0aE": "agree",
+          "0x336458747913FE397be82c4F0926ACeB3ab13618": "idle",
+          "0x378aED3bA912Ce77C3C66155961A7e61C2fE8F3B": "idle",
+          "0x5e84e17266a193077728229751aC8A1dD24be146": "agree",
+          "0x9C182DE7F93AdbE8ee3D62570613eC23c5683cAc": "agree"
+        }
+      },
+      "elapsedSeconds": 22.18
+    },
+    {
+      "operation": "refresh_claim",
+      "txHash": "0x506b8233a22cbaac917293961556b290cd5dd43a4ca23f39c2817522fe968936",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x506b8233a22cbaac917293961556b290cd5dd43a4ca23f39c2817522fe968936",
+      "claimId": "2fd94aacf982",
+      "citationId": "8bf9a5e9e40b",
+      "badge": "VERIFIED",
+      "blockNumber": "0x0",
+      "rawStatusName": null,
+      "rawStatus": "FINALIZED",
+      "receiptStatus": "0x1",
+      "validatorVotes": {
+        "agree": 3,
+        "total": 5,
+        "summary": "3/5",
+        "details": {
+          "0x336458747913FE397be82c4F0926ACeB3ab13618": "agree",
+          "0x4619C8420D50c9dE477DB2CBb7b4863A041688CB": "agree",
+          "0x4868b172ddEBC18b5219aaCeAB77ae0Df330c83A": "idle",
+          "0x5847AF34a4e5bA96490f8c883598f68EC9B0B907": "idle",
+          "0x9C182DE7F93AdbE8ee3D62570613eC23c5683cAc": "agree"
+        }
+      },
+      "elapsedSeconds": 9.38
+    }
+  ],
+  "disagreedTransactions": [
+    {
+      "operation": "audit_citation",
+      "txHash": "0xe33c653ad027caaa4c00f5640e473d8d40dabe80e447bfbc3b8b04de65f4d017",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0xe33c653ad027caaa4c00f5640e473d8d40dabe80e447bfbc3b8b04de65f4d017",
+      "citationId": "322c9765ea6e",
+      "targetUrl": "https://en.wikipedia.org/w/index.php?title=Claude_Shannon&oldid=1381669817",
+      "rawStatus": "UNDETERMINED",
+      "rawStatusName": null,
+      "validatorVotes": {
+        "agree": 1,
+        "total": 5,
+        "summary": "1/5",
+        "details": {
+          "0x007d6451555Df7765c707284F844137927aE4e5E": "idle",
+          "0x0eb3859451817bC25Cc717D4F676D54D0D3aD0aE": "agree",
+          "0x4868b172ddEBC18b5219aaCeAB77ae0Df330c83A": "disagree",
+          "0x5D9Ee6E9aAF2F0b739314A52dd9Da57cd8866dA8": "disagree",
+          "0xe06A34A1eBd398AF3399d08593B8c3C433CdD947": "disagree"
+        }
+      },
+      "description": "Recorded validator consensus disagreement under Studionet Preview network conditions."
+    }
+  ],
+  "readbackVerifications": [
+    {
+      "citationId": "8bf9a5e9e40b",
+      "articleTitle": "Claude Shannon",
+      "oldid": "1381327532",
+      "registrant": "0xf4780364D66D87368729b80A285E24084138203e",
+      "registrantMatchesAccount": true,
+      "isBrandNewId": true,
+      "matchesDeterministicId": true
+    },
+    {
+      "claimId": "2fd94aacf982",
+      "citationId": "8bf9a5e9e40b",
+      "publisher": "0xf4780364D66D87368729b80A285E24084138203e",
+      "publisherMatchesAccount": true,
+      "badge": "VERIFIED",
+      "isBrandNewId": true
+    }
+  ],
+  "negativeFlows": [
+    {
+      "scenario": "Non-owner call to ClaimsBoard.set_ledger_address",
+      "txHash": "0x83ed33a0e709b0e877206a30cd4f0a8bdc91eed7fc1ccc37c55f9744d569def7",
+      "explorerUrl": "https://explorer-studio.genlayer.com/tx/0x83ed33a0e709b0e877206a30cd4f0a8bdc91eed7fc1ccc37c55f9744d569def7",
+      "blockNumber": "0x0",
+      "rawStatusName": null,
+      "rawStatus": "FINALIZED",
+      "receiptStatus": "0x1",
+      "validatorVotes": {
+        "agree": 3,
+        "total": 5,
+        "summary": "3/5",
+        "details": {
+          "0x007d6451555Df7765c707284F844137927aE4e5E": "idle",
+          "0x0eb3859451817bC25Cc717D4F676D54D0D3aD0aE": "agree",
+          "0x5847AF34a4e5bA96490f8c883598f68EC9B0B907": "agree",
+          "0x9C182DE7F93AdbE8ee3D62570613eC23c5683cAc": "agree",
+          "0xB4EE99165ffe987E64B7b72e45a753309c501eef": "idle"
+        }
+      },
+      "decodedRevert": "Only the ClaimsBoard contract deployer/owner can set the linked ledger address.",
+      "remedy": "Switch to the contract owner's wallet address.",
+      "elapsedSeconds": 38.15
+    }
+  ],
+  "screenshots": [
+    "docs/milestones/m1/fix1/screens/01_tour_step_1.png",
+    "docs/milestones/m1/fix1/screens/02_tour_final_step.png",
+    "docs/milestones/m1/fix1/screens/03_registration_modal.png",
+    "docs/milestones/m1/fix1/screens/04_citation_detail_readback.png",
+    "docs/milestones/m1/fix1/screens/05_audit_modal.png",
+    "docs/milestones/m1/fix1/screens/06_audit_verdict_detail.png",
+    "docs/milestones/m1/fix1/screens/07_publish_claim_modal.png",
+    "docs/milestones/m1/fix1/screens/08_refresh_claim_modal.png",
+    "docs/milestones/m1/fix1/screens/09_claims_board_verified.png"
+  ]
+}

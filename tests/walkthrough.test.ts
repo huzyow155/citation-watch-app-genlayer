@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { isTourDismissed } from "../src/components/WalkthroughModal";
 
 describe("Interactive Guided Walkthrough Flow", () => {
   const steps = [
@@ -19,5 +20,11 @@ describe("Interactive Guided Walkthrough Flow", () => {
     expect(steps[2].title).toContain("Audit Source Drift");
     expect(steps[3].title).toContain("Publish Verifiable Claims");
     expect(steps[4].title).toContain("Dynamic ClaimsBoard Badges");
+  });
+
+  it("exports isTourDismissed helper that defaults safely without errors", () => {
+    expect(typeof isTourDismissed).toBe("function");
+    // Should return boolean without throwing even when localStorage is unmocked
+    expect(typeof isTourDismissed()).toBe("boolean");
   });
 });

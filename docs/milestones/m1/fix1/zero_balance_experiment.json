@@ -1,0 +1,83 @@
+{
+  "experiment": "Zero-Balance 4-Write Verification on GenLayer Studionet (Preview)",
+  "testedAt": "2026-10-24T14:29:29.513Z",
+  "account": "0xE1876592e963bdA36324F1A2362B94280bFf6C21",
+  "initialBalance": "0",
+  "finalBalance": "0",
+  "totalGasConsumed": "0",
+  "canZeroBalanceWriteAllMethods": false,
+  "transactions": [
+    {
+      "operation": "register_citation",
+      "txHash": "0x7a78b8792795552c188d575e954fe4ca97a613b9014fd67ed9494ce8f103ac42",
+      "statusName": "UNDETERMINED",
+      "status": 6,
+      "votes": {
+        "0x007d6451555Df7765c707284F844137927aE4e5E": "disagree",
+        "0x0eb3859451817bC25Cc717D4F676D54D0D3aD0aE": "idle",
+        "0x336458747913FE397be82c4F0926ACeB3ab13618": "disagree",
+        "0xB4EE99165ffe987E64B7b72e45a753309c501eef": "agree",
+        "0xcab45E3fe9cC9592B5C378E47734E022b7Df80c9": "disagree"
+      },
+      "executionResult": "DISAGREED",
+      "elapsedSeconds": 42.27,
+      "balanceBefore": "0",
+      "balanceAfter": "0",
+      "balanceConsumed": "0"
+    },
+    {
+      "operation": "audit_citation",
+      "txHash": "0x215b97d8443ba6acbf41ca9c2c6eba8846942d360867cf7c7312d8da7221f38d",
+      "statusName": "ACCEPTED",
+      "status": 5,
+      "votes": {
+        "0x007d6451555Df7765c707284F844137927aE4e5E": "agree",
+        "0x0eb3859451817bC25Cc717D4F676D54D0D3aD0aE": "agree",
+        "0x5847AF34a4e5bA96490f8c883598f68EC9B0B907": "idle",
+        "0xCe0B66448435cA53665C954705Abd753515594Cf": "idle",
+        "0xb04cdDC4a6Ff6A0aDF715cfe00Fa307b901cebD4": "agree"
+      },
+      "executionResult": "SUCCESS",
+      "elapsedSeconds": 6.47,
+      "balanceBefore": "0",
+      "balanceAfter": "0",
+      "balanceConsumed": "0"
+    },
+    {
+      "operation": "publish_claim",
+      "txHash": "0xc0781284685d45eab82a78030da22dee2a810a398374d52ce9b97975ddd33747",
+      "statusName": "ACCEPTED",
+      "status": 5,
+      "votes": {
+        "0x336458747913FE397be82c4F0926ACeB3ab13618": "agree",
+        "0x378aED3bA912Ce77C3C66155961A7e61C2fE8F3B": "agree",
+        "0x5847AF34a4e5bA96490f8c883598f68EC9B0B907": "idle",
+        "0x9C182DE7F93AdbE8ee3D62570613eC23c5683cAc": "idle",
+        "0xe06A34A1eBd398AF3399d08593B8c3C433CdD947": "agree"
+      },
+      "executionResult": "SUCCESS",
+      "elapsedSeconds": 6.44,
+      "balanceBefore": "0",
+      "balanceAfter": "0",
+      "balanceConsumed": "0"
+    },
+    {
+      "operation": "refresh_claim",
+      "txHash": "0x41cbfc7e985fd25f40062abe3eff9050b62f52a420facc8b65ecbe1b2c36e5eb",
+      "statusName": "ACCEPTED",
+      "status": 5,
+      "votes": {
+        "0x4868b172ddEBC18b5219aaCeAB77ae0Df330c83A": "agree",
+        "0x9C182DE7F93AdbE8ee3D62570613eC23c5683cAc": "idle",
+        "0xB4EE99165ffe987E64B7b72e45a753309c501eef": "agree",
+        "0xb04cdDC4a6Ff6A0aDF715cfe00Fa307b901cebD4": "agree",
+        "0xe06A34A1eBd398AF3399d08593B8c3C433CdD947": "agree"
+      },
+      "executionResult": "SUCCESS",
+      "elapsedSeconds": 6.47,
+      "balanceBefore": "0",
+      "balanceAfter": "0",
+      "balanceConsumed": "0"
+    }
+  ]
+}

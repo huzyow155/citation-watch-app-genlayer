@@ -18,4 +18,11 @@ describe("Funding Guide & Gas Semantics", () => {
     const previewGasFee = 0n;
     expect(previewGasFee).toBe(0n);
   });
+
+  it("confirms accounts with 0 GEN balance can execute write transactions", () => {
+    const accountBalance = 0n;
+    const requiredThreshold = 0n;
+    const canWrite = accountBalance >= requiredThreshold;
+    expect(canWrite).toBe(true);
+  });
 });

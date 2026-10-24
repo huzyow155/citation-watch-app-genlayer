@@ -1,0 +1,128 @@
+{
+  "auditedAt": "2026-10-24T15:12:49.114Z",
+  "tool": "@axe-core/playwright",
+  "targetUrl": "https://citation-watch-app-genlayer.vercel.app",
+  "totalScenarios": 15,
+  "scenarios": [
+    {
+      "target": "Landing page",
+      "url": "/",
+      "width": 1440,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 33
+    },
+    {
+      "target": "Workbench page",
+      "url": "/app",
+      "width": 1440,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 42
+    },
+    {
+      "target": "Walkthrough modal",
+      "url": "/ (tour open)",
+      "width": 1440,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 43
+    },
+    {
+      "target": "Funding modal",
+      "url": "/ (funding open)",
+      "width": 1440,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 42
+    },
+    {
+      "target": "Wallet modal",
+      "url": "/ (wallet open)",
+      "width": 1440,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 43
+    },
+    {
+      "target": "Landing page",
+      "url": "/",
+      "width": 500,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 33
+    },
+    {
+      "target": "Workbench page",
+      "url": "/app",
+      "width": 500,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 43
+    },
+    {
+      "target": "Walkthrough modal",
+      "url": "/ (tour open)",
+      "width": 500,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 43
+    },
+    {
+      "target": "Funding modal",
+      "url": "/ (funding open)",
+      "width": 500,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 42
+    },
+    {
+      "target": "Wallet modal",
+      "url": "/ (wallet open)",
+      "width": 500,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 43
+    },
+    {
+      "target": "Landing page",
+      "url": "/",
+      "width": 390,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 32
+    },
+    {
+      "target": "Workbench page",
+      "url": "/app",
+      "width": 390,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 42
+    },
+    {
+      "target": "Walkthrough modal",
+      "url": "/ (tour open)",
+      "width": 390,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 42
+    },
+    {
+      "target": "Funding modal",
+      "url": "/ (funding open)",
+      "width": 390,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 41
+    },
+    {
+      "target": "Wallet modal",
+      "url": "/ (wallet open)",
+      "width": 390,
+      "violationsCount": 0,
+      "violations": [],
+      "passesCount": 42
+    }
+  ]
+}

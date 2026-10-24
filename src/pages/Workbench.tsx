@@ -107,7 +107,7 @@ export const Workbench: React.FC = () => {
   const [txProgress, setTxProgress] = useState<TxProgress | null>(null);
   const [showFundingModal, setShowFundingModal] = useState(false);
 
-  // In-memory cache to prevent redundant RPC calls
+  // In-memory cache to avoid redundant RPC calls
   const citationCacheRef = useRef<Map<string, CitationRecord>>(new Map());
   const claimCacheRef = useRef<Map<string, ClaimBadgeRecord>>(new Map());
 
@@ -257,6 +257,7 @@ export const Workbench: React.FC = () => {
     e.preventDefault();
     if (!(await runPreWriteGuard())) return;
 
+    setTxProgress({ stage: "idle" });
     setIsModalOpen(true);
     setModalTitle("Register Citation Baseline");
     try {
@@ -284,6 +285,7 @@ export const Workbench: React.FC = () => {
     e.preventDefault();
     if (!(await runPreWriteGuard())) return;
 
+    setTxProgress({ stage: "idle" });
     setIsModalOpen(true);
     setModalTitle("Audit Citation Target");
     try {
@@ -304,6 +306,7 @@ export const Workbench: React.FC = () => {
     e.preventDefault();
     if (!(await runPreWriteGuard())) return;
 
+    setTxProgress({ stage: "idle" });
     setIsModalOpen(true);
     setModalTitle("Publish Claim on ClaimsBoard");
     try {
@@ -324,6 +327,7 @@ export const Workbench: React.FC = () => {
     e.preventDefault();
     if (!(await runPreWriteGuard())) return;
 
+    setTxProgress({ stage: "idle" });
     setIsModalOpen(true);
     setModalTitle("Refresh Claim Badge");
     try {
@@ -343,6 +347,7 @@ export const Workbench: React.FC = () => {
     e.preventDefault();
     if (!(await runPreWriteGuard())) return;
 
+    setTxProgress({ stage: "idle" });
     setIsModalOpen(true);
     setModalTitle("Update ClaimsBoard Linked Ledger");
     try {
@@ -588,7 +593,7 @@ export const Workbench: React.FC = () => {
                   Citation Baseline &amp; Drift History
                 </h1>
                 <p className="text-sm text-slate-300 mt-1">
-                  On-chain immutable baseline records and sequential validator drift audits.
+                  On-chain baseline records and sequential validator drift audits.
                 </p>
               </div>
 
